@@ -12,6 +12,7 @@
 @class TSClient;
 @class TSChannel;
 @class TSUser;
+@class TSClientOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,6 +33,14 @@ typedef NS_ENUM(NSUInteger, TSConnectionStatus) {
             TSConnectionStatusEstablished,
 };
 
+/// Block to call when the password is supplied by a caller
+typedef void (^TSClientAuthCallback)(NSString* password);
+
+/// Block called when a channel requires a password
+typedef void (^TSClientAuthPrompt)(TSClientAuthCallback authCallback);
+
+
+
 @protocol TSClientDelegate
 
 - (void)client:(TSClient *)client connectStatusChanged:(TSConnectionStatus)status;
@@ -50,11 +59,7 @@ typedef NS_ENUM(NSUInteger, TSConnectionStatus) {
 
 @property (nonatomic, weak, nullable) id <TSClientDelegate> delegate;
 
-- (instancetype)initWithHost:(NSString *)host
-                        port:(NSUInteger)port
-              serverNickname:(NSString *)serverNickname
-              serverPassword:(nullable NSString *)serverPassword
-                 receiveOnly:(BOOL)receiveOnly;
+- (instancetype)initWithOptions:(TSClientOptions *)options;
 
 - (void)connectWithCompletion:(void (^_Nullable)(BOOL success, NSError *error))completion;
 
@@ -62,7 +67,14 @@ typedef NS_ENUM(NSUInteger, TSConnectionStatus) {
 
 - (NSArray<TSChannel *> *)listChannels;
 
-- (void)switchToChannel:(TSChannel *)channel authCallback:(void (^)(NSString *password))authCallback;
+
+/**
+ * Moves to a specified channel
+ * @param channel The channel to move to,
+ * @param authPrompt The authentication block called if the channel has a password.
+ * @param completion Called when finished
+ */
+- (void)moveToChannel:(TSChannel *)channel authCallback:(_Nullable TSClientAuthPrompt)authPrompt completion:(void(^_Nullable)(BOOL success, NSError *error)) completion;
 
 - (void)listUsersIn:(TSChannel *)channel completion:(void (^)(NSArray<TSUser *> *users, NSError *error))completion;
 

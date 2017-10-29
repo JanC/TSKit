@@ -12,6 +12,7 @@
 #import "TSConnectionManager.h"
 #import "TSChannel.h"
 #import "TSUser.h"
+#import "TSClientOptions.h"
 
 #import <teamspeak/clientlib.h>
 #import <teamspeak/public_errors.h>
@@ -20,11 +21,7 @@
 
 @interface TSClient () <AudioIODelegate>
 
-@property (nonatomic, copy) NSString *host;
-@property (nonatomic, assign) NSUInteger port;
-@property (nonatomic, copy) NSString *serverPassword;
-@property (nonatomic, copy) NSString *serverNickname;
-@property (nonatomic, assign) BOOL receiveOnly;
+@property (nonatomic, strong) TSClientOptions *options;
 
 @property (nonatomic, assign) UInt64 serverConnectionHandlerID;
 
@@ -42,23 +39,15 @@
 
 @implementation TSClient
 
-- (instancetype)initWithHost:(NSString *)host port:(NSUInteger)port serverNickname:(NSString *)serverNickname serverPassword:(NSString *)serverPassword receiveOnly:(BOOL)receiveOnly
+- (instancetype)initWithOptions:(TSClientOptions *)options
 {
     self = [super init];
     if (self) {
-        self.host = host;
-        self.port = port;
-        self.receiveOnly = receiveOnly;
-        self.serverPassword = serverPassword;
-        self.serverNickname = serverNickname;
+        self.options = options;
 
-        self.audioIO = [[AudioIO alloc] initWithAllowRecord:NO];
+        self.audioIO = [[AudioIO alloc] initWithAllowRecord:!options.receiveOnly];
         self.audioIO.delegate = self;
 
-//        NSError *error;
-//        if(![[AVAudioSession sharedInstance] overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:&error]) {
-//            NSLog(@"Cannot play through speakers: %@", error);
-//        }
 
         [TSConnectionManager sharedManager];
         [self spawnServerConnectionHandler];
@@ -69,13 +58,24 @@
     return self;
 }
 
-- (void)connectWithCompletion:(void (^_Nullable)(BOOL success, NSError *error))completion
+- (void)connectWithCompletion:(void (^ _Nullable)(BOOL success, NSError *error))completion
 {
     if (!self.identity) {
         self.identity = [self.class createIdentity];
     }
 
-    NSUInteger error = ts3client_startConnection(_serverConnectionHandlerID, self.identity.UTF8String, self.host.UTF8String, (unsigned int) self.port, self.serverNickname.UTF8String, NULL, "", self.serverPassword.UTF8String);
+    //  NSUInteger error = ts3client_startConnection(_serverConnectionHandlerID, self.identity.UTF8String, self.host.UTF8String, (unsigned int) self.port, self.serverNickname.UTF8String, NULL, "", self.serverPassword.UTF8String);
+
+
+
+    
+    NSUInteger error = ts3client_startConnection(_serverConnectionHandlerID,
+            self.identity.UTF8String,
+            self.options.host.UTF8String,
+            (unsigned int) self.options.port,
+            self.options.nickName.UTF8String,
+            NULL, "",
+            self.options.password  ? self.options.password.UTF8String : @"".UTF8String);
     if (error != ERROR_ok) {
         NSLog(@"Error connecting to server: %@", [NSError ts_errorMessageFromCode:error]);
         completion(NO, [NSError ts_errorWithCode:error]);
@@ -84,7 +84,7 @@
 
     [self openAudio];
 
-        /* Get own clientID as we need to call CLIENT_FLAG_TALKING with getClientSelfVariable for own client */
+    /* Get own clientID as we need to call CLIENT_FLAG_TALKING with getClientSelfVariable for own client */
     if ((error = ts3client_getClientID(self.serverConnectionHandlerID, &_ownClientID)) != ERROR_ok) {
         completion(NO, [NSError ts_errorWithCode:error]);
         return;
@@ -101,7 +101,7 @@
 
 }
 
--(void)disconnect
+- (void)disconnect
 {
     NSUInteger error = ts3client_stopConnection(_serverConnectionHandlerID, "leaving");
     if (error != ERROR_ok) {
@@ -149,13 +149,13 @@
     return channels;
 }
 
-- (void)switchToChannel:(TSChannel *)channel authCallback:(void (^)(NSString *password))authCallback
+- (void)moveToChannel:(TSChannel *)channel authCallback:(TSClientAuthPrompt)authPrompt completion:(void(^)(BOOL success, NSError *error)) completion;
 {
-    unsigned int error;
+
+    __block NSUInteger error;
     /* Query channel ID from user */
     uint64 channelID = channel.uid;
     int hasPassword;
-
 
     /* Query own client ID */
     anyID clientID;
@@ -169,30 +169,48 @@
     /* Check if channel has a password set */
     if ((error = ts3client_getChannelVariableAsInt(self.serverConnectionHandlerID, channelID, CHANNEL_FLAG_PASSWORD, &hasPassword)) != ERROR_ok) {
         NSLog(@"Failed to get password flag: %d\n", error);
+        if(completion) {
+            completion(NO, [NSError ts_errorWithCode:error]);
+        }
         return;
     }
 
-    /* Get channel password if channel is password protected */
-    char password[1];
-    if (hasPassword) {
-        NSAssert(NO, @"implement");
-    } else {
-        password[0] = '\0';
-    }
+    void (^requestClientMoveBlock)(const char *) = ^void(const char * cpass) {
 
-    /* Request moving own client into given channel */
+        /* Request moving own client into given channel */
 
+        if ((error = ts3client_requestClientMove(self.serverConnectionHandlerID, clientID, channelID, cpass, NULL)) != ERROR_ok) {
+            NSLog(@"Error moving client into channel channel: %@\n", [NSError ts_errorWithCode:error]);
+            if(completion) {
+                completion(NO, [NSError ts_errorWithCode:error]);
+            }
+            return;
+        }
 
-    if ((error = ts3client_requestClientMove(self.serverConnectionHandlerID, clientID, channelID, password, NULL)) != ERROR_ok) {
-        NSLog(@"Error moving client into channel channel: %d\n", error);
+        self.currentChannel = channel;
+        NSLog(@"Switching into channel %llu\n\n", (unsigned long long) channelID);
+    };
+
+    if (!hasPassword) {
+        char pass[1];
+        pass[0] = '\0';
+        requestClientMoveBlock(pass);
         return;
     }
 
-    self.currentChannel = channel;
-    NSLog(@"Switching into channel %llu\n\n", (unsigned long long) channelID);
+    // password but no auth block
+    if(!authPrompt) {
+        if(completion) {
+            completion(NO, [NSError ts_errorWithDescription:@"Channel has password but no password was supplied"]);
+        }
+    }
+    // prompt for pass
+    authPrompt(^(NSString *password) {
+        requestClientMoveBlock([password cStringUsingEncoding:NSUTF8StringEncoding]);
+    });
 }
 
-- (void)listUsersIn:(TSChannel *)channel completion:(void (^)(NSArray<TSUser*> *users, NSError *error))completion
+- (void)listUsersIn:(TSChannel *)channel completion:(void (^)(NSArray<TSUser *> *users, NSError *error))completion
 {
     anyID *ids;
     int i;
@@ -250,7 +268,7 @@
 {
     NSString *identity = nil;
     char *cstring;
-    int error = ts3client_createIdentity(&cstring);
+    NSUInteger error = ts3client_createIdentity(&cstring);
     if (error == ERROR_ok) {
         identity = [NSString stringWithUTF8String:cstring];
         ts3client_freeMemory(cstring);
@@ -574,7 +592,7 @@
     NSLog(@"Opening capture device for server connection handler %qu", _serverConnectionHandlerID);
     int error;
 
-    if (!self.receiveOnly) {
+    if (!self.options.receiveOnly) {
         error = ts3client_openCaptureDevice(_serverConnectionHandlerID, "custom", self.audioIO.deviceID.UTF8String);
         if (error != ERROR_ok) {
             NSLog(@"Error opening capture device: %@", [NSError ts_errorMessageFromCode:error]);

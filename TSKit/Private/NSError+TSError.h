@@ -11,4 +11,6 @@
 
 + (NSError *)ts_errorWithCode:(NSUInteger)errorCode;
 
++ (NSError *)ts_errorWithDescription:(NSString *)description;
+
 @end

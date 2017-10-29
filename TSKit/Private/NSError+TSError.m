@@ -29,4 +29,12 @@
 
     return [NSError errorWithDomain:@"com.ts" code:errorCode userInfo:userInfo];
 }
+
++ (NSError *)ts_errorWithDescription:(NSString *)description
+{
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+    userInfo[NSLocalizedDescriptionKey] = description;
+
+    return [NSError errorWithDomain:@"com.ts" code:0 userInfo:userInfo];
+}
 @end

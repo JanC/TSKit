@@ -18,5 +18,6 @@ FOUNDATION_EXPORT const unsigned char TSKitVersionString[];
 #import "TSClient.h"
 #import "TSChannel.h"
 #import "TSUser.h"
+#import "TSClientOptions.h"
 
 
