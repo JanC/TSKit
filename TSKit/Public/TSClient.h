@@ -13,6 +13,7 @@
 @class TSChannel;
 @class TSUser;
 @class TSClientOptions;
+@class TSHelper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -48,6 +49,12 @@ typedef void (^TSClientAuthPrompt)(TSClientAuthCallback authCallback);
 - (void)client:(TSClient *)client clientName:(NSString *)clientName clientID:(int)clientID talkStatusChanged:(BOOL)talking;
 
 - (void)client:(TSClient *)client onConnectionError:(NSError *)error;
+
+/// Called when a new channel is created and after initial channel list on connection
+- (void)client:(TSClient *)client didReceivedChannel:(TSChannel *)channel;
+
+/// Called when a channel is deleted by the server
+- (void)client:(TSClient *)client didDeleteChannel:(NSUInteger)channelId;
 
 @end
 

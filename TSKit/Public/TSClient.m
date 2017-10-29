@@ -14,6 +14,7 @@
 #import "TSUser.h"
 #import "TSClientOptions.h"
 #import "TSClient+Private.h"
+#import "TSHelper.h"
 
 #import <teamspeak/clientlib.h>
 #import <teamspeak/public_errors.h>
@@ -80,12 +81,14 @@
             self.options.nickName.UTF8String,
             NULL, "",
             self.options.password  ? self.options.password.UTF8String : @"".UTF8String);
+    
     if (error != ERROR_ok) {
         NSLog(@"Error connecting to server: %@", [NSError ts_errorMessageFromCode:error]);
         completion(NO, [NSError ts_errorWithCode:error]);
         return;
     }
 
+    
     [self openAudio];
 
     /* Get own clientID as we need to call CLIENT_FLAG_TALKING with getClientSelfVariable for own client */
@@ -337,28 +340,33 @@
 
 - (void)onNewChannelEvent:(NSDictionary *)parameters
 {
-    int channelID = [parameters[@"channelID"] intValue];
+    NSUInteger channelID = [parameters[@"channelID"] unsignedIntValue];
     int channelParentID = [parameters[@"channelParentID"] intValue];
 
     NSLog(@"onNewChannelEvent channelID: %i channelParentID: %i", channelID, channelParentID);
+
+    [self.delegate client:self didReceivedChannel:[TSHelper channelDetails:channelID connectionID:self.serverConnectionHandlerID]];
 }
 
 
 - (void)onNewChannelCreatedEvent:(NSDictionary *)parameters
 {
-    int channelID = [parameters[@"channelID"] intValue];
+    NSUInteger channelID = [parameters[@"channelID"] unsignedIntValue];
     NSString *invokerName = parameters[@"invokerName"];
 
     NSLog(@"onNewChannelCreatedEvent channelID: %i invokerName: %@", channelID, invokerName);
+
+    [self.delegate client:self didReceivedChannel:[TSHelper channelDetails:channelID connectionID:self.serverConnectionHandlerID]];
 }
 
 
 - (void)onDelChannelEvent:(NSDictionary *)parameters
 {
-    int channelID = [parameters[@"channelID"] intValue];
+    NSUInteger channelID = [parameters[@"channelID"] unsignedIntValue];
     NSString *invokerName = parameters[@"invokerName"];
 
     NSLog(@"onDelChannelEvent channelID: %i invokerName: %@", channelID, invokerName);
+    [self.delegate client:self didDeleteChannel:channelID];
 }
 
 

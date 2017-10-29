@@ -18,7 +18,7 @@
 
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
 
-@property (nonatomic, strong) NSArray<TSChannel *> *channels;
+@property (nonatomic, strong) NSMutableArray<TSChannel *> *channels;
 @property (nonatomic, strong) TSClient *client;
 @end
 
@@ -26,7 +26,7 @@
 
 - (void)viewDidLoad
 {
-
+    self.channels = [NSMutableArray array];
     [super viewDidLoad];
 
 
@@ -95,7 +95,7 @@
 - (void)client:(TSClient *)client connectStatusChanged:(TSConnectionStatus)newStatus
 {
     if (newStatus == TSConnectionStatusEstablished) {
-        self.channels = [client listChannels];
+//        self.channels = [[client listChannels] mutableCopy];
         [self.tableView reloadData];
         NSLog(@"channels: %@", self.channels);
     }
@@ -116,6 +116,22 @@
     [self presentViewController:alertController animated:YES completion:^{
 
     }];
+}
+
+- (void)client:(TSClient *)client didReceivedChannel:(TSChannel *)channel
+{
+    [self.channels addObject:channel];
+    [self.tableView reloadData];
+}
+
+- (void)client:(TSClient *)client didDeleteChannel:(NSUInteger)channelId
+{
+    [self.channels filterUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(TSChannel *currentChannel, NSDictionary*bindings) {
+        return currentChannel.uid != channelId;
+    }]];
+
+    [self.tableView reloadData];
+
 }
 
 
