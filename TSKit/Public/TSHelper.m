@@ -15,7 +15,7 @@
 @implementation TSHelper
 
 
-+ (TSChannel *)channelDetails:(NSUInteger)channelID connectionID:(UInt64) connectionId
++ (TSChannel *)channelDetails:(UInt64)channelID connectionID:(UInt64) connectionId
 {
     char *name;
     NSString *nameString = @"";

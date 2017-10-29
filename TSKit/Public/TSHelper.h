@@ -13,6 +13,6 @@
 #pragma mark - Channels
 
 /// Gets the details of a channel id
-+ (TSChannel *)channelDetails:(NSUInteger)channelID connectionID:(UInt64)connectionId;
++ (TSChannel *)channelDetails:(UInt64)channelID connectionID:(UInt64)connectionId;
 
 @end

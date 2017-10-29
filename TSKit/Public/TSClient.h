@@ -42,7 +42,9 @@ typedef void (^TSClientAuthPrompt)(TSClientAuthCallback authCallback);
 
 
 
-@protocol TSClientDelegate
+@protocol TSClientDelegate <NSObject>
+
+@optional
 
 - (void)client:(TSClient *)client connectStatusChanged:(TSConnectionStatus)status;
 

@@ -68,12 +68,6 @@
     if (!self.identity) {
         self.identity = [self.class createIdentity];
     }
-
-    //  NSUInteger error = ts3client_startConnection(_serverConnectionHandlerID, self.identity.UTF8String, self.host.UTF8String, (unsigned int) self.port, self.serverNickname.UTF8String, NULL, "", self.serverPassword.UTF8String);
-
-
-
-    
     NSUInteger error = ts3client_startConnection(_serverConnectionHandlerID,
             self.identity.UTF8String,
             self.options.host.UTF8String,
@@ -84,7 +78,9 @@
     
     if (error != ERROR_ok) {
         NSLog(@"Error connecting to server: %@", [NSError ts_errorMessageFromCode:error]);
-        completion(NO, [NSError ts_errorWithCode:error]);
+        if(completion) {
+            completion(NO, [NSError ts_errorWithCode:error]);
+        }
         return;
     }
 
@@ -93,11 +89,16 @@
 
     /* Get own clientID as we need to call CLIENT_FLAG_TALKING with getClientSelfVariable for own client */
     if ((error = ts3client_getClientID(self.serverConnectionHandlerID, &_ownClientID)) != ERROR_ok) {
-        completion(NO, [NSError ts_errorWithCode:error]);
+        if(completion) {
+            completion(NO, [NSError ts_errorWithCode:error]);
+        }
         return;
     }
 
-    completion(YES, nil);
+    if(completion) {
+        completion(YES, nil);
+    }
+    
 
 
 //    /* Set mode to voice activated */
@@ -323,7 +324,10 @@
 
     if (errorNumber > 0) {
 
-        [self.delegate client:self onConnectionError:[NSError ts_errorWithCode:errorNumber]];
+        id <TSClientDelegate> o = self.delegate;
+        if ([o respondsToSelector:@selector(client:onConnectionError:)]) {
+            [o client:self onConnectionError:[NSError ts_errorWithCode:errorNumber]];
+        }
     }
 }
 
@@ -334,7 +338,10 @@
 
     NSLog(@"onNewChannelEvent channelID: %@ channelParentID: %i", @(channelID), channelParentID);
 
-    [self.delegate client:self didReceivedChannel:[TSHelper channelDetails:channelID connectionID:self.serverConnectionHandlerID]];
+    id <TSClientDelegate> o = self.delegate;
+    if ([o respondsToSelector:@selector(client:didReceivedChannel:)]) {
+        [o client:self didReceivedChannel:[TSHelper channelDetails:channelID connectionID:self.serverConnectionHandlerID]];
+    }
 }
 
 
@@ -345,7 +352,10 @@
 
     NSLog(@"onNewChannelCreatedEvent channelID: %@ invokerName: %@",@(channelID), invokerName);
 
-    [self.delegate client:self didReceivedChannel:[TSHelper channelDetails:channelID connectionID:self.serverConnectionHandlerID]];
+    id <TSClientDelegate> o = self.delegate;
+    if ([o respondsToSelector:@selector(client:didReceivedChannel:)]) {
+        [o client:self didReceivedChannel:[TSHelper channelDetails:channelID connectionID:self.serverConnectionHandlerID]];
+    }
 }
 
 
@@ -355,7 +365,11 @@
     NSString *invokerName = parameters[@"invokerName"];
 
     NSLog(@"onDelChannelEvent channelID: %@ invokerName: %@", @(channelID), invokerName);
-    [self.delegate client:self didDeleteChannel:channelID];
+
+    id <TSClientDelegate> o = self.delegate;
+    if ([o respondsToSelector:@selector(client:didDeleteChannel:)]) {
+        [o client:self didDeleteChannel:channelID];
+    }
 }
 
 
@@ -407,7 +421,10 @@
 
     NSLog(@"onTalkStatusChangeEvent status: %i isReceivedWhisper: %i clientID: %i", status, isReceivedWhisper, clientID);
 
-    [self.delegate client:self clientName:nameString clientID:clientID talkStatusChanged:status != STATUS_NOT_TALKING];
+    id <TSClientDelegate> o = self.delegate;
+    if ([o respondsToSelector:@selector(client:clientName:clientID:talkStatusChanged:)]) {
+        [o client:self clientName:nameString clientID:clientID talkStatusChanged:status != STATUS_NOT_TALKING];
+    }
 }
 
 
