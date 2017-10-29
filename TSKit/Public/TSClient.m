@@ -1,0 +1,633 @@
+//
+//  TSClient.m
+//  TSKit
+//
+//  Created by Jan Chaloupecky on 26.10.17.
+//  Copyright © 2017 Tequila Apps. All rights reserved.
+//
+
+#import "TSClient.h"
+#import "AudioIO.h"
+#import "NSError+TSError.h"
+#import "TSConnectionManager.h"
+#import "TSChannel.h"
+#import "TSUser.h"
+
+#import <teamspeak/clientlib.h>
+#import <teamspeak/public_errors.h>
+#import <teamspeak/public_definitions.h>
+
+
+@interface TSClient () <AudioIODelegate>
+
+@property (nonatomic, copy) NSString *host;
+@property (nonatomic, assign) NSUInteger port;
+@property (nonatomic, copy) NSString *serverPassword;
+@property (nonatomic, copy) NSString *serverNickname;
+@property (nonatomic, assign) BOOL receiveOnly;
+
+@property (nonatomic, assign) UInt64 serverConnectionHandlerID;
+
+@property (nonatomic, strong) AudioIO *audioIO;
+@property (nonatomic, copy) NSString *identity;
+
+@property (nonatomic, assign) BOOL captureActive;
+@property (nonatomic, assign) BOOL playbackActive;
+
+
+@property (nonatomic, strong, readwrite) TSChannel *currentChannel;
+@property (nonatomic, assign, readwrite) anyID ownClientID;
+
+@end
+
+@implementation TSClient
+
+- (instancetype)initWithHost:(NSString *)host port:(NSUInteger)port serverNickname:(NSString *)serverNickname serverPassword:(NSString *)serverPassword receiveOnly:(BOOL)receiveOnly
+{
+    self = [super init];
+    if (self) {
+        self.host = host;
+        self.port = port;
+        self.receiveOnly = receiveOnly;
+        self.serverPassword = serverPassword;
+        self.serverNickname = serverNickname;
+
+        self.audioIO = [[AudioIO alloc] initWithAllowRecord:NO];
+        self.audioIO.delegate = self;
+
+//        NSError *error;
+//        if(![[AVAudioSession sharedInstance] overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:&error]) {
+//            NSLog(@"Cannot play through speakers: %@", error);
+//        }
+
+        [TSConnectionManager sharedManager];
+        [self spawnServerConnectionHandler];
+        [self registerAudioDevice];
+
+    }
+
+    return self;
+}
+
+- (void)connectWithCompletion:(void (^_Nullable)(BOOL success, NSError *error))completion
+{
+    if (!self.identity) {
+        self.identity = [self.class createIdentity];
+    }
+
+    NSUInteger error = ts3client_startConnection(_serverConnectionHandlerID, self.identity.UTF8String, self.host.UTF8String, (unsigned int) self.port, self.serverNickname.UTF8String, NULL, "", self.serverPassword.UTF8String);
+    if (error != ERROR_ok) {
+        NSLog(@"Error connecting to server: %@", [NSError ts_errorMessageFromCode:error]);
+        completion(NO, [NSError ts_errorWithCode:error]);
+        return;
+    }
+
+    [self openAudio];
+
+        /* Get own clientID as we need to call CLIENT_FLAG_TALKING with getClientSelfVariable for own client */
+    if ((error = ts3client_getClientID(self.serverConnectionHandlerID, &_ownClientID)) != ERROR_ok) {
+        completion(NO, [NSError ts_errorWithCode:error]);
+        return;
+    }
+
+    completion(YES, nil);
+
+
+//    /* Set mode to voice activated */
+//    [self setPreProcessorValue:@"true" forIdentifier:@"vad"];
+//
+//    /* Set the voice activation level in dB. You might want to experiment with these values */
+//    [self setPreProcessorValue:@"-5" forIdentifier:@"voiceactivation_level"];
+
+}
+
+-(void)disconnect
+{
+    NSUInteger error = ts3client_stopConnection(_serverConnectionHandlerID, "leaving");
+    if (error != ERROR_ok) {
+        NSLog(@"Error connecting to server: %@", [NSError ts_errorMessageFromCode:error]);
+    }
+}
+
+- (NSArray *)listChannels
+{
+    uint64 *ids;
+    int i;
+    unsigned int error;
+
+    NSLog(@"\nList of channels on virtual server %llu:\n", (unsigned long long) _serverConnectionHandlerID);
+    if ((error = ts3client_getChannelList(_serverConnectionHandlerID, &ids)) != ERROR_ok) {  /* Get array of channel IDs */
+
+        NSLog(@"Error getting channel list: %@\n", [NSError ts_errorMessageFromCode:error]);
+        return nil;
+    }
+    if (!ids[0]) {
+        NSLog(@"No channels\n\n");
+        ts3client_freeMemory(ids);
+        return nil;
+    }
+
+    NSMutableArray<TSChannel *> *channels = [NSMutableArray array];
+    for (i = 0; ids[i]; i++) {
+        char *name;
+        NSString *nameString = @"";
+        if ((error = ts3client_getChannelVariableAsString(_serverConnectionHandlerID, ids[i], CHANNEL_NAME, &name)) == ERROR_ok) {
+            nameString = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
+        } else {
+            NSLog(@"Error getting channel name: %@", [NSError ts_errorMessageFromCode:error]);
+        }
+        printf("%llu - %s\n", (unsigned long long) ids[i], name);
+
+        [channels addObject:[TSChannel channelWithUid:ids[i] name:nameString]];
+
+        ts3client_freeMemory(name);
+    }
+
+
+    ts3client_freeMemory(ids);  /* Release array */
+
+    return channels;
+}
+
+- (void)switchToChannel:(TSChannel *)channel authCallback:(void (^)(NSString *password))authCallback
+{
+    unsigned int error;
+    /* Query channel ID from user */
+    uint64 channelID = channel.uid;
+    int hasPassword;
+
+
+    /* Query own client ID */
+    anyID clientID;
+    if ((error = ts3client_getClientID(self.serverConnectionHandlerID, &clientID)) != ERROR_ok) {
+        NSLog(@"Error querying own client ID: %d\n", error);
+        return;
+    }
+
+    /* Using standard password mechanism */
+
+    /* Check if channel has a password set */
+    if ((error = ts3client_getChannelVariableAsInt(self.serverConnectionHandlerID, channelID, CHANNEL_FLAG_PASSWORD, &hasPassword)) != ERROR_ok) {
+        NSLog(@"Failed to get password flag: %d\n", error);
+        return;
+    }
+
+    /* Get channel password if channel is password protected */
+    char password[1];
+    if (hasPassword) {
+        NSAssert(NO, @"implement");
+    } else {
+        password[0] = '\0';
+    }
+
+    /* Request moving own client into given channel */
+
+
+    if ((error = ts3client_requestClientMove(self.serverConnectionHandlerID, clientID, channelID, password, NULL)) != ERROR_ok) {
+        NSLog(@"Error moving client into channel channel: %d\n", error);
+        return;
+    }
+
+    self.currentChannel = channel;
+    NSLog(@"Switching into channel %llu\n\n", (unsigned long long) channelID);
+}
+
+- (void)listUsersIn:(TSChannel *)channel completion:(void (^)(NSArray<TSUser*> *users, NSError *error))completion
+{
+    anyID *ids;
+    int i;
+    unsigned int error;
+
+    printf("\nList of clients in channel %llu on virtual server %llu:\n", (unsigned long long) channel.uid, (unsigned long long) self.serverConnectionHandlerID);
+    if ((error = ts3client_getChannelClientList(self.serverConnectionHandlerID, channel.uid, &ids)) != ERROR_ok) {  /* Get array of client IDs */
+        completion(nil, [NSError ts_errorWithCode:error]);
+        return;
+    }
+    if (!ids[0]) {
+        printf("No clients\n\n");
+        ts3client_freeMemory(ids);
+        completion(nil, nil);
+        return;
+    }
+
+    NSMutableArray *users = [NSMutableArray array];
+    for (i = 0; ids[i]; i++) {
+        char *name;
+
+        TSUser *user = [TSUser userWithUid:ids[i] name:@"unknown"];
+
+        if ((error = ts3client_getClientVariableAsString(self.serverConnectionHandlerID, ids[i], CLIENT_NICKNAME, &name)) == ERROR_ok) {
+            user.name = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
+        } else {
+            NSLog(@"Error querying client nickname: %d\n", error);
+        }
+        ts3client_freeMemory(name);
+
+        [users addObject:user];
+    }
+
+    completion(users, nil);
+
+    ts3client_freeMemory(ids);  /* Release array */
+}
+
+
+#pragma mark - TSLibrary
+
+
+- (void)spawnServerConnectionHandler
+{
+    // Create a server connection handler
+    unsigned int error = ts3client_spawnNewServerConnectionHandler(0, &_serverConnectionHandlerID);
+    if (error != ERROR_ok) {
+        NSLog(@"ts3client_spawnNewServerConnectionHandler ERROR");
+        return;
+    }
+    [[TSConnectionManager sharedManager] registerClient:self];
+}
+
++ (NSString *)createIdentity
+{
+    NSString *identity = nil;
+    char *cstring;
+    int error = ts3client_createIdentity(&cstring);
+    if (error == ERROR_ok) {
+        identity = [NSString stringWithUTF8String:cstring];
+        ts3client_freeMemory(cstring);
+    } else {
+        NSLog(@"Error creating identity: %@", [NSError ts_errorMessageFromCode:error]);
+    }
+
+    return identity;
+}
+
+#pragma mark - SDK callbacks on main thread
+
+/*
+ * Callback for connection status change.
+ * Connection status switches through the states STATUS_DISCONNECTED, STATUS_CONNECTING, STATUS_CONNECTED and STATUS_CONNECTION_ESTABLISHED.
+ *
+ * Parameters:
+ *   serverConnectionHandlerID - Server connection handler ID
+ *   newStatus                 - New connection status, see the enum ConnectStatus in clientlib_publicdefinitions.h
+ *   errorNumber               - Error code. Should be zero when connecting or actively disconnection.
+ *                               Contains error state when losing connection.
+ */
+- (void)onConnectStatusChangedEvent:(NSDictionary *)parameters
+{
+
+    int newStatus = [parameters[@"newStatus"] intValue];
+    NSUInteger errorNumber = [parameters[@"errorNumber"] unsignedIntValue];
+
+
+    NSLog(@"onConnectStatusChangedEvent newStatus: %i error: %@", newStatus, [NSError ts_errorMessageFromCode:errorNumber]);
+    /* Failed to connect ? */
+    if (newStatus == STATUS_DISCONNECTED && errorNumber == ERROR_failed_connection_initialisation) {
+        printf("Looks like there is no server running!\n");
+    }
+
+    if (newStatus == STATUS_DISCONNECTED) {
+        [self closeAudio];
+    }
+
+    [self.delegate client:self connectStatusChanged:(TSConnectionStatus) newStatus];
+
+    if (errorNumber > 0) {
+
+        [self.delegate client:self onConnectionError:[NSError ts_errorWithCode:errorNumber]];
+    }
+}
+
+/*
+ * Callback for current channels being announced to the client after connecting to a server.
+ *
+ * Parameters:
+ *   serverConnectionHandlerID - Server connection handler ID
+ *   channelID                 - ID of the announced channel
+ *   channelParentID           - ID of the parent channel
+ */
+- (void)onNewChannelEvent:(NSDictionary *)parameters
+{
+    int channelID = [parameters[@"channelID"] intValue];
+    int channelParentID = [parameters[@"channelParentID"] intValue];
+
+    NSLog(@"onNewChannelEvent channelID: %i channelParentID: %i", channelID, channelParentID);
+}
+
+/*
+ * Callback for just created channels.
+ *
+ * Parameters:
+ *   serverConnectionHandlerID - Server connection handler ID
+ *   channelID                 - ID of the announced channel
+ *   channelParentID           - ID of the parent channel
+ *   invokerID                 - ID of the client who created the channel
+ *   invokerName               - Name of the client who created the channel
+ */
+- (void)onNewChannelCreatedEvent:(NSDictionary *)parameters
+{
+    int channelID = [parameters[@"channelID"] intValue];
+    NSString *invokerName = parameters[@"invokerName"];
+
+    NSLog(@"onNewChannelCreatedEvent channelID: %i invokerName: %@", channelID, invokerName);
+}
+
+/*
+ * Callback when a channel was deleted.
+ *
+ * Parameters:
+ *   serverConnectionHandlerID - Server connection handler ID
+ *   channelID                 - ID of the deleted channel
+ *   invokerID                 - ID of the client who deleted the channel
+ *   invokerName               - Name of the client who deleted the channel
+ */
+- (void)onDelChannelEvent:(NSDictionary *)parameters
+{
+    int channelID = [parameters[@"channelID"] intValue];
+    NSString *invokerName = parameters[@"invokerName"];
+
+    NSLog(@"onDelChannelEvent channelID: %i invokerName: %@", channelID, invokerName);
+}
+
+/*
+ * Called when a client joins, leaves or moves to another channel.
+ *
+ * Parameters:
+ *   serverConnectionHandlerID - Server connection handler ID
+ *   clientID                  - ID of the moved client
+ *   oldChannelID              - ID of the old channel left by the client
+ *   newChannelID              - ID of the new channel joined by the client
+ *   visibility                - Visibility of the moved client. See the enum Visibility in clientlib_publicdefinitions.h
+ *                               Values: ENTER_VISIBILITY, RETAIN_VISIBILITY, LEAVE_VISIBILITY
+ */
+- (void)onClientMoveEvent:(NSDictionary *)parameters
+{
+    int clientID = [parameters[@"clientID"] intValue];
+    int oldChannelID = [parameters[@"oldChannelID"] intValue];
+    int newChannelID = [parameters[@"newChannelID"] intValue];
+    int visibility = [parameters[@"visibility"] intValue];
+
+    NSLog(@"onClientMoveEvent clientID: %i oldChannelID: %i newChannelID: %i visibility: %i", clientID, oldChannelID, newChannelID, visibility);
+}
+
+/*
+ * Callback for other clients in current and subscribed channels being announced to the client.
+ *
+ * Parameters:
+ *   serverConnectionHandlerID - Server connection handler ID
+ *   clientID                  - ID of the announced client
+ *   oldChannelID              - ID of the subscribed channel where the client left visibility
+ *   newChannelID              - ID of the subscribed channel where the client entered visibility
+ *   visibility                - Visibility of the announced client. See the enum Visibility in clientlib_publicdefinitions.h
+ *                               Values: ENTER_VISIBILITY, RETAIN_VISIBILITY, LEAVE_VISIBILITY
+ */
+- (void)onClientMoveSubscriptionEvent:(NSDictionary *)parameters
+{
+    int clientID = [parameters[@"clientID"] intValue];
+    int oldChannelID = [parameters[@"oldChannelID"] intValue];
+    int newChannelID = [parameters[@"newChannelID"] intValue];
+    int visibility = [parameters[@"visibility"] intValue];
+
+    NSLog(@"onClientMoveSubscriptionEvent clientID: %i oldChannelID: %i newChannelID: %i visibility: %i", clientID, oldChannelID, newChannelID, visibility);
+}
+
+/*
+ * Called when a client drops his connection.
+ *
+ * Parameters:
+ *   serverConnectionHandlerID - Server connection handler ID
+ *   clientID                  - ID of the moved client
+ *   oldChannelID              - ID of the channel the leaving client was previously member of
+ *   newChannelID              - 0, as client is leaving
+ *   visibility                - Always LEAVE_VISIBILITY
+ *   timeoutMessage            - Optional message giving the reason for the timeout
+ */
+- (void)onClientMoveTimeoutEvent:(NSDictionary *)parameters
+{
+    int clientID = [parameters[@"clientID"] intValue];
+    int oldChannelID = [parameters[@"oldChannelID"] intValue];
+    int newChannelID = [parameters[@"newChannelID"] intValue];
+    int visibility = [parameters[@"visibility"] intValue];
+
+    NSLog(@"onClientMoveTimeoutEvent clientID: %i oldChannelID: %i newChannelID: %i visibility: %i", clientID, oldChannelID, newChannelID, visibility);
+}
+
+/*
+ * This event is called when a client starts or stops talking.
+ *
+ * Parameters:
+ *   serverConnectionHandlerID - Server connection handler ID
+ *   status                    - 1 if client starts talking, 0 if client stops talking
+ *   isReceivedWhisper         - 1 if this event was caused by whispering, 0 if caused by normal talking
+ *   clientID                  - ID of the client who announced the talk status change
+ */
+- (void)onTalkStatusChangeEvent:(NSDictionary *)parameters
+{
+    int status = [parameters[@"status"] intValue];
+    int isReceivedWhisper = [parameters[@"isReceivedWhisper"] intValue];
+    int clientID = [parameters[@"clientID"] intValue];
+
+    /* Query client nickname from ID */
+    char *name;
+    NSString *nameString;
+    if (ts3client_getClientVariableAsString(self.serverConnectionHandlerID, (anyID) clientID, CLIENT_NICKNAME, &name) == ERROR_ok) {
+        nameString = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
+    }
+
+    NSLog(@"onTalkStatusChangeEvent status: %i isReceivedWhisper: %i clientID: %i", status, isReceivedWhisper, clientID);
+
+    [self.delegate client:self clientName:nameString clientID:clientID talkStatusChanged:status != STATUS_NOT_TALKING];
+}
+
+/*
+ * This event is called when the server sends an error to the client as the result of an asynchronous request.
+ *
+ *
+ * Parameters:
+ *   serverConnectionHandlerID - Server connection handler ID
+ *   errorMessage              - String containing a verbose error message
+ *   error                     - Error code as defined in public_errors.h
+ *   returnCode                - Set by the client lib function call which caused this event
+ *   extraMessage              - Can contain additional information about the error
+ */
+- (void)onServerErrorEvent:(NSDictionary *)parameters
+{
+    NSString *errorMessage = parameters[@"errorMessage"];
+    int error = [parameters[@"error"] intValue];
+    NSString *returnCode = parameters[@"returnCode"];
+    NSString *extraMessage = parameters[@"extraMessage"];
+    //[NSError ts_errorWithCode:returnCode]
+    NSLog(@"onServerErrorEvent errorMessage: %@ error: %i returnCode: %@ extraMessage: %@", errorMessage, error, returnCode, extraMessage);
+}
+
+#pragma mark - AudioDelegate
+
+- (void)audioIO:(AudioIO *)audioIO processAudioToSpeaker:(AudioBufferList *)ioData
+{
+    if (!_playbackActive) {
+        return;
+    }
+
+    int numSamples = ioData->mBuffers[0].mDataByteSize / (AUDIO_BIT_DEPTH_IN_BYTES * AUDIO_NUM_CHANNELS);
+    short *outData = (short *) (ioData->mBuffers[0].mData); // A single buffer contains interleaved data for AUDIO_NUM_CHANNELS channels
+
+
+    /* Get playback data from the client lib */
+    int error = ts3client_acquireCustomPlaybackData(self.audioIO.deviceID.UTF8String,
+            outData,
+            numSamples);
+    if (error != ERROR_ok && error != ERROR_sound_no_data) {
+        NSLog(@"Error acquiring playback data: %@", [NSError ts_errorMessageFromCode:error]);
+    }
+}
+
+- (void)audioIO:(AudioIO *)audioIO processAudioFromMicrophone:(AudioBufferList *)ioData
+{
+    if (!_captureActive) {
+        return;
+    }
+
+    int numSamples = ioData->mBuffers[0].mDataByteSize / (AUDIO_BIT_DEPTH_IN_BYTES * AUDIO_NUM_CHANNELS);
+    short *inData = (short *) (ioData->mBuffers[0].mData); // A single buffer contains interleaved data for AUDIO_NUM_CHANNELS channels
+
+    /* Send capture data to the client lib */
+    int error = ts3client_processCustomCaptureData(self.audioIO.deviceID.UTF8String,
+            inData,
+            numSamples);
+    if (error != ERROR_ok) {
+        NSLog(@"Error processing capture data: %@", [NSError ts_errorMessageFromCode:error]);
+    }
+}
+
+- (void)audioWillStart:(AudioIO *)audioIO
+{
+    if (!self.isDisconnected) {
+        [self openAudio];
+    }
+}
+
+- (void)audioWillStop:(AudioIO *)audioIO
+{
+    if (!self.isDisconnected) {
+        [self closeAudio];
+    }
+}
+
+
+- (BOOL)isConnected
+{
+    return self.connectStatus == STATUS_CONNECTION_ESTABLISHED;
+}
+
+- (BOOL)isDisconnected
+{
+    return self.connectStatus == STATUS_DISCONNECTED;
+}
+
+- (BOOL)isConnecting
+{
+    return !self.isConnected && !self.isDisconnected;
+}
+
+- (int)connectStatus
+{
+    int status;
+    int error = ts3client_getConnectionStatus(_serverConnectionHandlerID, &status);
+    if (error == ERROR_ok) {
+        return status;
+    }
+    return STATUS_DISCONNECTED;
+}
+
+#pragma mark - Audio
+
+#pragma mark - Audio Handling
+
+- (void)registerAudioDevice
+{
+    NSLog(@"Registering custom sound device, sample rate = %f ***", AUDIO_SAMPLE_RATE);
+
+    int error = ts3client_registerCustomDevice(self.audioIO.deviceID.UTF8String,
+            self.audioIO.deviceDisplayName.UTF8String,
+            self.audioIO.sampleRate,
+            self.audioIO.numChannels,
+            self.audioIO.sampleRate,
+            self.audioIO.numChannels);
+    if (error != ERROR_ok) {
+        NSLog(@"Error registering custom sound device: %@", [NSError ts_errorMessageFromCode:error]);
+    }
+
+}
+
+- (void)unregisterAudioDevice
+{
+    NSLog(@"Unregistering custom sound device");
+
+    int error = ts3client_unregisterCustomDevice(self.audioIO.deviceID.UTF8String);
+    if (error != ERROR_ok) {
+        NSLog(@"Error unregistering custom sound device: %@", [NSError ts_errorMessageFromCode:error]);
+    }
+}
+
+- (void)openAudio
+{
+    NSLog(@"Opening capture device for server connection handler %qu", _serverConnectionHandlerID);
+    int error;
+
+    if (!self.receiveOnly) {
+        error = ts3client_openCaptureDevice(_serverConnectionHandlerID, "custom", self.audioIO.deviceID.UTF8String);
+        if (error != ERROR_ok) {
+            NSLog(@"Error opening capture device: %@", [NSError ts_errorMessageFromCode:error]);
+        } else {
+            self.captureActive = YES;
+        }
+    }
+
+    NSLog(@"Opening playback device for server connection handler %qu", _serverConnectionHandlerID);
+
+    error = ts3client_openPlaybackDevice(_serverConnectionHandlerID, "custom", self.audioIO.deviceID.UTF8String);
+    if (error != ERROR_ok) {
+        NSLog(@"Error opening playback device: %@", [NSError ts_errorMessageFromCode:error]);
+    } else {
+        self.playbackActive = YES;
+    }
+
+    [self.audioIO start];
+}
+
+- (void)closeAudio
+{
+    if (self.captureActive) {
+        NSLog(@"Closing capture device");
+
+        int error = ts3client_closeCaptureDevice(_serverConnectionHandlerID);
+        if (error != ERROR_ok) {
+            NSLog(@"Error closing capture device: %@\n", [NSError ts_errorMessageFromCode:error]);
+        } else {
+            self.captureActive = NO;
+        }
+    }
+
+    if (self.playbackActive) {
+        NSLog(@"Closing playback device");
+
+        int error = ts3client_closePlaybackDevice(_serverConnectionHandlerID);
+        if (error != ERROR_ok) {
+            printf("Error closing playback device: %d\n", error);
+        } else {
+            self.playbackActive = NO;
+        }
+    }
+
+    [self.audioIO stop];
+}
+
+- (void)dealloc
+{
+    [self unregisterAudioDevice];
+//    [self destroyServerConnectionHandler];
+//    [self destroyLibrary];
+}
+
+
+@end
