@@ -25,6 +25,11 @@
     return self;
 }
 
+- (instancetype)initWithUid:(uint64_t)uid
+{
+    return [self initWithUid:uid name:nil topic:nil channelDescription:nil];
+}
+
 + (instancetype)channelWithUid:(uint64_t)uid name:(NSString *)name topic:(NSString *)topic channelDescription:(NSString *)channelDescription
 {
     return [[self alloc] initWithUid:uid name:name topic:topic channelDescription:channelDescription];
