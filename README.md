@@ -2,6 +2,8 @@
 
 ![badge-languages] ![badge-pms]
 
+![](logo.svg)
+
 
 TSKit is a Objective-C wrapper around the [C TeamSpeak client library](https://www.teamspeak.com/en/teamspeak3sdk.html)
 
