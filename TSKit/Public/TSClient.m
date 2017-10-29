@@ -38,7 +38,7 @@
 @property (nonatomic, assign, readwrite) anyID ownClientID;
 
 // Dictionary of blocks and "returnCodes" called by the onServerErrorEvent. See docs for "Return code"
-@property (nonatomic, strong, readwrite) NSMutableDictionary<NSString*, TSClientErrorBlock> *ts3clientReturnCodesCallbacks;
+@property (nonatomic, strong, readwrite) NSMutableDictionary<NSString *, TSClientErrorBlock> *ts3clientReturnCodesCallbacks;
 
 @end
 
@@ -63,42 +63,62 @@
     return self;
 }
 
-- (void)connectWithCompletion:(void (^ _Nullable)(BOOL success, NSError *error))completion
+- (void)connectToChannels:(nullable NSArray<NSString *>*)initialChannels completion:(void (^ _Nullable)(BOOL success, NSError *error))completion
 {
     if (!self.identity) {
         self.identity = [self.class createIdentity];
     }
+
+
+    char **channels = NULL;
+
+    NSInteger count = initialChannels.count;
+
+    if (initialChannels) {
+        channels = (char **) calloc((size_t)count + 1, sizeof(char *));
+
+        for (NSInteger i = 0; i < count; i++) {
+            NSString *nsString = initialChannels[i];
+            char *cString = (char *) malloc([nsString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1); // + 1 for \0
+            strcpy(cString, nsString.UTF8String);
+            channels[i] = cString;
+        }
+
+        channels[count] = "";
+    }
+
     NSUInteger error = ts3client_startConnection(_serverConnectionHandlerID,
             self.identity.UTF8String,
             self.options.host.UTF8String,
             (unsigned int) self.options.port,
             self.options.nickName.UTF8String,
-            NULL, "",
-            self.options.password  ? self.options.password.UTF8String : @"".UTF8String);
-    
+            (const char **) channels, "",
+            self.options.password ? self.options.password.UTF8String : @"".UTF8String);
+
+    if(channels) {
+        for (NSInteger i = 0; i < count; i++) {
+            if (channels[i]) {
+                free(channels[i]);
+            }
+        }
+        free(channels);
+    }
+
     if (error != ERROR_ok) {
         NSLog(@"Error connecting to server: %@", [NSError ts_errorMessageFromCode:error]);
-        if(completion) {
+        if (completion) {
             completion(NO, [NSError ts_errorWithCode:error]);
         }
         return;
     }
 
-    
+
     [self openAudio];
 
-    /* Get own clientID as we need to call CLIENT_FLAG_TALKING with getClientSelfVariable for own client */
-    if ((error = ts3client_getClientID(self.serverConnectionHandlerID, &_ownClientID)) != ERROR_ok) {
-        if(completion) {
-            completion(NO, [NSError ts_errorWithCode:error]);
-        }
-        return;
-    }
-
-    if(completion) {
+    if (completion) {
         completion(YES, nil);
     }
-    
+
 
 
 //    /* Set mode to voice activated */
@@ -146,7 +166,7 @@
     return channels;
 }
 
-- (void)moveToChannel:(TSChannel *)channel authCallback:(TSClientAuthPrompt)authPrompt completion:(void(^)(BOOL success, NSError *error)) completion;
+- (void)moveToChannel:(TSChannel *)channel authCallback:(TSClientAuthPrompt)authPrompt completion:(void (^)(BOOL success, NSError *error))completion;
 {
 
     __block NSUInteger error;
@@ -158,7 +178,7 @@
     anyID clientID;
     if ((error = ts3client_getClientID(self.serverConnectionHandlerID, &clientID)) != ERROR_ok) {
         NSError *tsError = [NSError ts_errorWithCode:error];
-        if(completion) {
+        if (completion) {
             completion(NO, tsError);
         }
         return;
@@ -170,7 +190,7 @@
     if ((error = ts3client_getChannelVariableAsInt(self.serverConnectionHandlerID, channelID, CHANNEL_FLAG_PASSWORD, &hasPassword)) != ERROR_ok) {
         NSError *tsError = [NSError ts_errorWithCode:error];
         NSLog(@"Failed to get password flag: %@", tsError);
-        if(completion) {
+        if (completion) {
             completion(NO, tsError);
         }
         return;
@@ -178,9 +198,9 @@
 
     NSLog(@"Switching into channel %@", channel);
 
-    
+
     __weak typeof(self) wself = self;
-    void (^requestClientMoveBlock)(const char *) = ^void(const char * cpass) {
+    void (^requestClientMoveBlock)(const char *) = ^void(const char *cpass) {
 
         // add a return code block to handle the result of this call
         NSString *returnCode = [[NSUUID UUID] UUIDString];
@@ -188,7 +208,7 @@
             NSLog(@"Switching into channel: %@", [NSError ts_errorMessageFromCode:errorCode]);
 
             // success
-            if(errorCode == ERROR_ok) {
+            if (errorCode == ERROR_ok) {
                 self.currentChannel = channel;
                 completion(YES, nil);
                 return;
@@ -201,7 +221,7 @@
         // request the actual move
         if ((error = ts3client_requestClientMove(self.serverConnectionHandlerID, clientID, channelID, cpass, [returnCode cStringUsingEncoding:NSUTF8StringEncoding])) != ERROR_ok) {
             NSLog(@"Error moving client into channel channel: %@\n", [NSError ts_errorWithCode:error]);
-            if(completion) {
+            if (completion) {
                 completion(NO, [NSError ts_errorWithCode:error]);
             }
             return;
@@ -217,8 +237,8 @@
     }
 
     // password but no auth block
-    if(!authPrompt) {
-        if(completion) {
+    if (!authPrompt) {
+        if (completion) {
             completion(NO, [NSError ts_errorWithDescription:@"Channel has password but no password was supplied"]);
         }
         return;
@@ -316,6 +336,23 @@
         printf("Looks like there is no server running!\n");
     }
 
+    if(newStatus == STATUS_CONNECTED) {
+
+        NSUInteger error;
+        /* Get own clientID as we need to call CLIENT_FLAG_TALKING with getClientSelfVariable for own client */
+        if ((error = ts3client_getClientID(self.serverConnectionHandlerID, &_ownClientID)) != ERROR_ok) {
+            NSLog(@"Getting own clientID: %@", [NSError ts_errorMessageFromCode:error]);
+        }
+
+        UInt64 ownChannelID;
+
+        error = ts3client_getChannelOfClient(self.serverConnectionHandlerID, self.ownClientID, &ownChannelID);
+        NSLog(@"Own channel %@", [NSError ts_errorMessageFromCode:error]);
+        if(error == ERROR_ok) {
+            self.currentChannel = [TSHelper channelDetails:ownChannelID connectionID:self.serverConnectionHandlerID];
+        }
+    }
+
     if (newStatus == STATUS_DISCONNECTED) {
         [self closeAudio];
     }
@@ -350,7 +387,7 @@
     NSUInteger channelID = [parameters[@"channelID"] unsignedIntValue];
     NSString *invokerName = parameters[@"invokerName"];
 
-    NSLog(@"onNewChannelCreatedEvent channelID: %@ invokerName: %@",@(channelID), invokerName);
+    NSLog(@"onNewChannelCreatedEvent channelID: %@ invokerName: %@", @(channelID), invokerName);
 
     id <TSClientDelegate> o = self.delegate;
     if ([o respondsToSelector:@selector(client:didReceivedChannel:)]) {

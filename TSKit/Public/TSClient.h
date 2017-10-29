@@ -70,7 +70,7 @@ typedef void (^TSClientAuthPrompt)(TSClientAuthCallback authCallback);
 
 - (instancetype)initWithOptions:(TSClientOptions *)options;
 
-- (void)connectWithCompletion:(void (^_Nullable)(BOOL success, NSError *error))completion;
+- (void)connectToChannels:(nullable NSArray<NSString *>*)initialChannels completion:(void (^ _Nullable)(BOOL success, NSError *error))completion;
 
 -(void)disconnect;
 

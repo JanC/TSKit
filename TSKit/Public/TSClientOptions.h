@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Optional TeamSpeak server password
 @property (nonatomic, copy, nullable) NSString *password;
 
+
 /**
  * If `YES`, the connection will be made only for listening without transmitting.
  * If `NO`, the client will setup a capture device which requires the iOS user permissions.

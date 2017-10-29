@@ -35,9 +35,11 @@
                                                             nickName:@"ios"
                                                             password:@"pe2014"
                                                          receiveOnly:YES];
+
+
     self.client = [[TSClient alloc] initWithOptions:options];
 
-    [self.client connectWithCompletion:^(BOOL success, NSError *_Nonnull error) {
+    [self.client connectToChannels:@[@"17510"] completion:^(BOOL success, NSError *_Nonnull error) {
         NSLog(@"");
     }];
 
@@ -104,7 +106,7 @@
 
 - (void)client:(TSClient *)client clientName:(NSString *)clientName clientID:(int)clientID talkStatusChanged:(BOOL)talking
 {
-    NSLog(@"%@ is talking %@", clientName, @(talking));
+    NSLog(@"%@ is talking %@ in %@", clientName, @(talking), client.currentChannel.name);
 }
 
 - (void)client:(TSClient *)client onConnectionError:(NSError *)error
