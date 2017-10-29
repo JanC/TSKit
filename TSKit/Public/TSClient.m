@@ -13,6 +13,7 @@
 #import "TSChannel.h"
 #import "TSUser.h"
 #import "TSClientOptions.h"
+#import "TSClient+Private.h"
 
 #import <teamspeak/clientlib.h>
 #import <teamspeak/public_errors.h>
@@ -35,6 +36,9 @@
 @property (nonatomic, strong, readwrite) TSChannel *currentChannel;
 @property (nonatomic, assign, readwrite) anyID ownClientID;
 
+// Dictionary of blocks and "returnCodes" called by the onServerErrorEvent. See docs for "Return code"
+@property (nonatomic, strong, readwrite) NSMutableDictionary<NSString*, TSClientErrorBlock> *ts3clientReturnCodesCallbacks;
+
 @end
 
 @implementation TSClient
@@ -44,7 +48,7 @@
     self = [super init];
     if (self) {
         self.options = options;
-
+        self.ts3clientReturnCodesCallbacks = [NSMutableDictionary dictionary];
         self.audioIO = [[AudioIO alloc] initWithAllowRecord:!options.receiveOnly];
         self.audioIO.delegate = self;
 
@@ -179,11 +183,30 @@
         return;
     }
 
+    NSLog(@"Switching into channel %@", channel);
+
     void (^requestClientMoveBlock)(const char *) = ^void(const char * cpass) {
 
         /* Request moving own client into given channel */
 
-        if ((error = ts3client_requestClientMove(self.serverConnectionHandlerID, clientID, channelID, cpass, NULL)) != ERROR_ok) {
+
+        NSString *returnCode = [[NSUUID UUID] UUIDString];
+        self.ts3clientReturnCodesCallbacks[returnCode] = ^(NSString *message, NSUInteger errorCode, NSString *extraMessage) {
+            NSLog(@"Switching into channel: %@", [NSError ts_errorMessageFromCode:errorCode]);
+
+            // success
+            if(errorCode == ERROR_ok) {
+                self.currentChannel = channel;
+                completion(YES, nil);
+                return;
+            }
+
+            // error
+            completion(NO, [NSError ts_errorWithCode:errorCode]);
+
+        };
+
+        if ((error = ts3client_requestClientMove(self.serverConnectionHandlerID, clientID, channelID, cpass, returnCode.cString)) != ERROR_ok) {
             NSLog(@"Error moving client into channel channel: %@\n", [NSError ts_errorWithCode:error]);
             if(completion) {
                 completion(NO, [NSError ts_errorWithCode:error]);
@@ -191,9 +214,6 @@
             return;
         }
 
-        self.currentChannel = channel;
-        NSLog(@"Switching into channel %@", channel);
-        completion(YES, nil);
     };
 
     if (!hasPassword) {
@@ -477,11 +497,23 @@
 - (void)onServerErrorEvent:(NSDictionary *)parameters
 {
     NSString *errorMessage = parameters[@"errorMessage"];
-    int error = [parameters[@"error"] intValue];
+    NSUInteger errorCode = [parameters[@"error"] unsignedIntegerValue];
     NSString *returnCode = parameters[@"returnCode"];
     NSString *extraMessage = parameters[@"extraMessage"];
     //[NSError ts_errorWithCode:returnCode]
-    NSLog(@"onServerErrorEvent errorMessage: %@ error: %i returnCode: %@ extraMessage: %@", errorMessage, error, returnCode, extraMessage);
+    NSLog(@"onServerErrorEvent errorMessage: %@ error: %i returnCode: %@ extraMessage: %@", errorMessage, errorCode, returnCode, extraMessage);
+
+
+    // handle an error message associated to a return code (call initiated by us)
+    TSClientErrorBlock errorBlock = self.ts3clientReturnCodesCallbacks[returnCode];
+    if (errorBlock) {
+        errorBlock(errorMessage, errorCode, extraMessage);
+        self.ts3clientReturnCodesCallbacks[returnCode] = nil;
+        return;
+    }
+
+    // another server error, not related to a client calls
+
 }
 
 #pragma mark - AudioDelegate

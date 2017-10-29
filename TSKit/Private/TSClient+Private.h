@@ -8,6 +8,8 @@
 
 @interface TSClient (Private)
 
+typedef void (^TSClientErrorBlock)(NSString* message, NSUInteger errorCode, NSString *extraMessage);
+
 #pragma mark - Protected
 
 - (void)onConnectStatusChangedEvent:(NSDictionary *)parameters;
