@@ -123,12 +123,12 @@
     if ((error = ts3client_getChannelList(_serverConnectionHandlerID, &ids)) != ERROR_ok) {  /* Get array of channel IDs */
 
         NSLog(@"Error getting channel list: %@\n", [NSError ts_errorMessageFromCode:error]);
-        return nil;
+        return @[];
     }
     if (!ids[0]) {
         NSLog(@"No channels\n\n");
         ts3client_freeMemory(ids);
-        return nil;
+        return @[];
     }
 
     NSMutableArray<TSChannel *> *channels = [NSMutableArray array];
@@ -228,11 +228,14 @@
         if(completion) {
             completion(NO, [NSError ts_errorWithDescription:@"Channel has password but no password was supplied"]);
         }
+        return;
     }
     // prompt for pass
     authPrompt(^(NSString *password) {
         requestClientMoveBlock([password cStringUsingEncoding:NSUTF8StringEncoding]);
     });
+
+
 }
 
 - (void)listUsersIn:(TSChannel *)channel completion:(void (^)(NSArray<TSUser *> *users, NSError *error))completion
@@ -473,7 +476,7 @@
 
     /* Query client nickname from ID */
     char *name;
-    NSString *nameString;
+    NSString *nameString = @"";
     if (ts3client_getClientVariableAsString(self.serverConnectionHandlerID, (anyID) clientID, CLIENT_NICKNAME, &name) == ERROR_ok) {
         nameString = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
     }
