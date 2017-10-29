@@ -10,12 +10,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface TSChannel : NSObject
 
-@property (nonatomic, assign) uint64_t uid;
+@property (nonatomic, assign) UInt64 uid;
 @property (nonatomic, copy) NSString *name;
+@property (nonatomic, copy, nullable) NSString *topic;
+@property (nonatomic, copy, nullable) NSString *channelDescription;
 
-- (instancetype)initWithUid:(uint64_t)uid name:(nullable NSString *)name;
 
-+ (instancetype)channelWithUid:(uint64_t)uid name:(NSString *)name;
+- (instancetype)initWithUid:(uint64_t)uid name:(NSString *)name topic:(NSString *)topic channelDescription:(NSString *)channelDescription;
+
++ (instancetype)channelWithUid:(uint64_t)uid name:(NSString *)name topic:(NSString *)topic channelDescription:(NSString *)channelDescription;
+
 
 @end
 

@@ -12,21 +12,24 @@
 
 @implementation TSChannel
 
-- (instancetype)initWithUid:(uint64_t)uid name:(NSString *)name
+- (instancetype)initWithUid:(uint64_t)uid name:(NSString *)name topic:(NSString *)topic channelDescription:(NSString *)channelDescription
 {
     self = [super init];
     if (self) {
         self.uid = uid;
         self.name = name;
+        self.topic = topic;
+        self.channelDescription = channelDescription;
     }
 
     return self;
 }
 
-+ (instancetype)channelWithUid:(uint64_t)uid name:(NSString *)name
++ (instancetype)channelWithUid:(uint64_t)uid name:(NSString *)name topic:(NSString *)topic channelDescription:(NSString *)channelDescription
 {
-    return [[self alloc] initWithUid:uid name:name];
+    return [[self alloc] initWithUid:uid name:name topic:topic channelDescription:channelDescription];
 }
+
 
 - (NSString *)description
 {

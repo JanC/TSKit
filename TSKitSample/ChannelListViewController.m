@@ -67,6 +67,8 @@
     UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     TSChannel *channel = self.channels[(NSUInteger) indexPath.row];
     cell.textLabel.text = [NSString stringWithFormat:@"%@ - %@", @(channel.uid), channel.name];
+    cell.detailTextLabel.text = [NSString stringWithFormat:@"%@ - %@", channel.topic, channel.channelDescription];
+
     return cell;
 }
 
@@ -95,7 +97,6 @@
 - (void)client:(TSClient *)client connectStatusChanged:(TSConnectionStatus)newStatus
 {
     if (newStatus == TSConnectionStatusEstablished) {
-//        self.channels = [[client listChannels] mutableCopy];
         [self.tableView reloadData];
         NSLog(@"channels: %@", self.channels);
     }

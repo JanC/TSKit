@@ -118,7 +118,7 @@
 
 - (NSArray *)listChannels
 {
-    uint64 *ids;
+    UInt64 *ids;
     int i;
     unsigned int error;
 
@@ -136,18 +136,7 @@
 
     NSMutableArray<TSChannel *> *channels = [NSMutableArray array];
     for (i = 0; ids[i]; i++) {
-        char *name;
-        NSString *nameString = @"";
-        if ((error = ts3client_getChannelVariableAsString(_serverConnectionHandlerID, ids[i], CHANNEL_NAME, &name)) == ERROR_ok) {
-            nameString = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
-        } else {
-            NSLog(@"Error getting channel name: %@", [NSError ts_errorMessageFromCode:error]);
-        }
-        printf("%llu - %s\n", (unsigned long long) ids[i], name);
-
-        [channels addObject:[TSChannel channelWithUid:ids[i] name:nameString]];
-
-        ts3client_freeMemory(name);
+        [channels addObject:[TSHelper channelDetails:ids[i] connectionID:self.serverConnectionHandlerID]];
     }
 
 
@@ -343,7 +332,7 @@
     NSUInteger channelID = [parameters[@"channelID"] unsignedIntValue];
     int channelParentID = [parameters[@"channelParentID"] intValue];
 
-    NSLog(@"onNewChannelEvent channelID: %i channelParentID: %i", channelID, channelParentID);
+    NSLog(@"onNewChannelEvent channelID: %@ channelParentID: %i", @(channelID), channelParentID);
 
     [self.delegate client:self didReceivedChannel:[TSHelper channelDetails:channelID connectionID:self.serverConnectionHandlerID]];
 }
@@ -354,7 +343,7 @@
     NSUInteger channelID = [parameters[@"channelID"] unsignedIntValue];
     NSString *invokerName = parameters[@"invokerName"];
 
-    NSLog(@"onNewChannelCreatedEvent channelID: %i invokerName: %@", channelID, invokerName);
+    NSLog(@"onNewChannelCreatedEvent channelID: %@ invokerName: %@",@(channelID), invokerName);
 
     [self.delegate client:self didReceivedChannel:[TSHelper channelDetails:channelID connectionID:self.serverConnectionHandlerID]];
 }
@@ -365,7 +354,7 @@
     NSUInteger channelID = [parameters[@"channelID"] unsignedIntValue];
     NSString *invokerName = parameters[@"invokerName"];
 
-    NSLog(@"onDelChannelEvent channelID: %i invokerName: %@", channelID, invokerName);
+    NSLog(@"onDelChannelEvent channelID: %@ invokerName: %@", @(channelID), invokerName);
     [self.delegate client:self didDeleteChannel:channelID];
 }
 
