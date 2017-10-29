@@ -7,10 +7,12 @@
 //
 
 #import "ChannelListViewController.h"
-#import "TSClient.h"
 #import "ChannelViewController.h"
+#import "UIViewController+TSViewController.h"
 
-@import TSKit;
+#import <TSKit/TSKit.h>
+
+
 
 @interface ChannelListViewController () <TSClientDelegate, UITableViewDataSource, UITableViewDelegate>
 
@@ -27,11 +29,13 @@
 
     [super viewDidLoad];
 
-    self.client = [[TSClient alloc] initWithHost:@"localhost"
-                                            port:9986
-                                  serverNickname:@"ios"
-                                  serverPassword:nil
-                                     receiveOnly:NO];
+
+    TSClientOptions *options = [[TSClientOptions alloc] initWithHost:@"192.168.0.12"
+                                                                port:9986
+                                                            nickName:@"ios"
+                                                            password:@"pe2014"
+                                                         receiveOnly:YES];
+    self.client = [[TSClient alloc] initWithOptions:options];
 
     [self.client connectWithCompletion:^(BOOL success, NSError *_Nonnull error) {
         NSLog(@"");
@@ -43,14 +47,9 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(nullable id)sender
 {
     if([segue.identifier isEqualToString:@"ShowChannelSegue"]) {
-        NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
-        TSChannel *channel = self.channels[(NSUInteger) indexPath.row];
-        [self.client switchToChannel:channel authCallback:nil];
-        
         ChannelViewController *channelViewController =  segue.destinationViewController;
         channelViewController.client = self.client;
 
-//        self.channels[(NSUInteger) indexPath.row];
     }
     [super prepareForSegue:segue sender:sender];
 }
@@ -73,11 +72,23 @@
 
 #pragma mark - UITableViewDelegate
 
-//- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    TSChannel *channel = self.channels[(NSUInteger) indexPath.row];
-//    [self.client switchToChannel:channel authCallback:nil];
-//}
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    TSChannel *channel = self.channels[(NSUInteger) indexPath.row];
+    [self.client moveToChannel:channel authCallback:^(TSClientAuthCallback authCallback) {
+
+        [self ts_askForPassword:^(NSString *password) {
+            authCallback(password);
+        }];
+
+    } completion:^(BOOL success, NSError *error) {
+        if (!success) {
+            [self ts_showAlert:@"Could not move to channel" message:error.localizedDescription];
+            return;
+        }
+        [self performSegueWithIdentifier:@"ShowChannelSegue" sender:nil];
+    }];
+}
 
 #pragma mark - TSClientDelegate
 

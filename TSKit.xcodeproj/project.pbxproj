@@ -35,6 +35,7 @@
 		C4D87BFA1E448C9AC23C3C1A /* TSClientOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D87762DF015817A181B47D /* TSClientOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C4D87E62DE5E0BBD005B7661 /* TSClientOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D87A2854DFDA38D12E1877 /* TSClientOptions.m */; };
 		C4D87E9B2CA888650E557B7A /* TSUser.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D87DE71C5AFF315F128BB5 /* TSUser.m */; };
+		C4D87EC31775E573C761FDE1 /* UIViewController+TSViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D879373F50503195D7CE2E /* UIViewController+TSViewController.m */; };
 		C4D87FB3EED018990B2B7CB2 /* TSConnectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D872DFC43456F5625B1E1E /* TSConnectionManager.h */; };
 /* End PBXBuildFile section */
 
@@ -93,6 +94,7 @@
 		8A04A4161FA22058002F2285 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8A04A4181FA22058002F2285 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8A04A4191FA22058002F2285 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		C4D87012011B87E4FC1C2E61 /* UIViewController+TSViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+TSViewController.h"; sourceTree = "<group>"; };
 		C4D871CE200A848D4D0743F3 /* TSChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSChannel.h; sourceTree = "<group>"; };
 		C4D8721AB8868E1A786CDE64 /* TSClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSClient.h; sourceTree = "<group>"; };
 		C4D8722CC50748F4BFD61CC9 /* TSChannel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSChannel.m; sourceTree = "<group>"; };
@@ -104,6 +106,7 @@
 		C4D87762DF015817A181B47D /* TSClientOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSClientOptions.h; sourceTree = "<group>"; };
 		C4D8783881DE406D4A312BAC /* TSClient+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TSClient+Private.h"; sourceTree = "<group>"; };
 		C4D87894AC50D2E8D817D33F /* TSConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSConnectionManager.m; sourceTree = "<group>"; };
+		C4D879373F50503195D7CE2E /* UIViewController+TSViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+TSViewController.m"; sourceTree = "<group>"; };
 		C4D87A2854DFDA38D12E1877 /* TSClientOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSClientOptions.m; sourceTree = "<group>"; };
 		C4D87DE71C5AFF315F128BB5 /* TSUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSUser.m; sourceTree = "<group>"; };
 		C4D87EF0CD4BC214DAA5D4EB /* TSUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSUser.h; sourceTree = "<group>"; };
@@ -238,6 +241,8 @@
 				8A04A4191FA22058002F2285 /* main.m */,
 				C4D8743825F442D0C687743B /* ChannelViewController.m */,
 				C4D872FE6914B2804D42CDB1 /* ChannelViewController.h */,
+				C4D879373F50503195D7CE2E /* UIViewController+TSViewController.m */,
+				C4D87012011B87E4FC1C2E61 /* UIViewController+TSViewController.h */,
 			);
 			path = TSKitSample;
 			sourceTree = "<group>";
@@ -410,6 +415,7 @@
 				8A04A40F1FA22058002F2285 /* ChannelListViewController.m in Sources */,
 				8A04A41A1FA22058002F2285 /* main.m in Sources */,
 				8A04A40C1FA22058002F2285 /* AppDelegate.m in Sources */,
+				C4D87EC31775E573C761FDE1 /* UIViewController+TSViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

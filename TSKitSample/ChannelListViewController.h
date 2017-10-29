@@ -12,6 +12,5 @@
 
 @interface ChannelListViewController : UIViewController
 
-
 @end
 

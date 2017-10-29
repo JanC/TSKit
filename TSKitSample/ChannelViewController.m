@@ -4,8 +4,7 @@
 //
 
 #import "ChannelViewController.h"
-#import "TSClient.h"
-#import "TSUser.h"
+#import <TSKit/TSKit.h>
 
 
 @interface ChannelViewController()
@@ -44,6 +43,13 @@
     UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     cell.textLabel.text = self.users[(NSUInteger) indexPath.row].name;
     return cell;
+}
+
+#pragma mark - Overrides
+
+- (NSString *)title
+{
+    return self.client.currentChannel.name;
 }
 
 

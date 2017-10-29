@@ -160,7 +160,10 @@
     /* Query own client ID */
     anyID clientID;
     if ((error = ts3client_getClientID(self.serverConnectionHandlerID, &clientID)) != ERROR_ok) {
-        NSLog(@"Error querying own client ID: %d\n", error);
+        NSError *tsError = [NSError ts_errorWithCode:error];
+        if(completion) {
+            completion(NO, tsError);
+        }
         return;
     }
 
@@ -168,9 +171,10 @@
 
     /* Check if channel has a password set */
     if ((error = ts3client_getChannelVariableAsInt(self.serverConnectionHandlerID, channelID, CHANNEL_FLAG_PASSWORD, &hasPassword)) != ERROR_ok) {
-        NSLog(@"Failed to get password flag: %d\n", error);
+        NSError *tsError = [NSError ts_errorWithCode:error];
+        NSLog(@"Failed to get password flag: %@", tsError);
         if(completion) {
-            completion(NO, [NSError ts_errorWithCode:error]);
+            completion(NO, tsError);
         }
         return;
     }
@@ -188,7 +192,8 @@
         }
 
         self.currentChannel = channel;
-        NSLog(@"Switching into channel %llu\n\n", (unsigned long long) channelID);
+        NSLog(@"Switching into channel %@", channel);
+        completion(YES, nil);
     };
 
     if (!hasPassword) {
@@ -216,13 +221,13 @@
     int i;
     unsigned int error;
 
-    printf("\nList of clients in channel %llu on virtual server %llu:\n", (unsigned long long) channel.uid, (unsigned long long) self.serverConnectionHandlerID);
+
     if ((error = ts3client_getChannelClientList(self.serverConnectionHandlerID, channel.uid, &ids)) != ERROR_ok) {  /* Get array of client IDs */
         completion(nil, [NSError ts_errorWithCode:error]);
         return;
     }
     if (!ids[0]) {
-        printf("No clients\n\n");
+        NSLog(@"No clients");
         ts3client_freeMemory(ids);
         completion(nil, nil);
         return;
@@ -244,9 +249,10 @@
         [users addObject:user];
     }
 
+    NSLog(@"Clients in channel %llu on virtual server %llu:\n %@", (unsigned long long) channel.uid, (unsigned long long) self.serverConnectionHandlerID, users);
     completion(users, nil);
 
-    ts3client_freeMemory(ids);  /* Release array */
+    ts3client_freeMemory(ids);
 }
 
 
