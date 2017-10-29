@@ -185,13 +185,13 @@
 
     NSLog(@"Switching into channel %@", channel);
 
+    
+    __weak typeof(self) wself = self;
     void (^requestClientMoveBlock)(const char *) = ^void(const char * cpass) {
 
-        /* Request moving own client into given channel */
-
-
+        // add a return code block to handle the result of this call
         NSString *returnCode = [[NSUUID UUID] UUIDString];
-        self.ts3clientReturnCodesCallbacks[returnCode] = ^(NSString *message, NSUInteger errorCode, NSString *extraMessage) {
+        wself.ts3clientReturnCodesCallbacks[returnCode] = ^(NSString *message, NSUInteger errorCode, NSString *extraMessage) {
             NSLog(@"Switching into channel: %@", [NSError ts_errorMessageFromCode:errorCode]);
 
             // success
@@ -200,13 +200,13 @@
                 completion(YES, nil);
                 return;
             }
-
             // error
             completion(NO, [NSError ts_errorWithCode:errorCode]);
 
         };
 
-        if ((error = ts3client_requestClientMove(self.serverConnectionHandlerID, clientID, channelID, cpass, returnCode.cString)) != ERROR_ok) {
+        // request the actual move
+        if ((error = ts3client_requestClientMove(self.serverConnectionHandlerID, clientID, channelID, cpass, [returnCode cStringUsingEncoding:NSUTF8StringEncoding])) != ERROR_ok) {
             NSLog(@"Error moving client into channel channel: %@\n", [NSError ts_errorWithCode:error]);
             if(completion) {
                 completion(NO, [NSError ts_errorWithCode:error]);
@@ -501,7 +501,7 @@
     NSString *returnCode = parameters[@"returnCode"];
     NSString *extraMessage = parameters[@"extraMessage"];
     //[NSError ts_errorWithCode:returnCode]
-    NSLog(@"onServerErrorEvent errorMessage: %@ error: %i returnCode: %@ extraMessage: %@", errorMessage, errorCode, returnCode, extraMessage);
+    NSLog(@"onServerErrorEvent errorMessage: %@ error: %@ returnCode: %@ extraMessage: %@", errorMessage, @(errorCode), returnCode, extraMessage);
 
 
     // handle an error message associated to a return code (call initiated by us)
