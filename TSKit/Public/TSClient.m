@@ -574,18 +574,19 @@
 
 - (void)registerAudioDevice
 {
-    NSLog(@"Registering custom sound device, sample rate = %f ***", AUDIO_SAMPLE_RATE);
-
-    int error = ts3client_registerCustomDevice(self.audioIO.deviceID.UTF8String,
-            self.audioIO.deviceDisplayName.UTF8String,
-            self.audioIO.sampleRate,
-            self.audioIO.numChannels,
-            self.audioIO.sampleRate,
-            self.audioIO.numChannels);
-    if (error != ERROR_ok) {
-        NSLog(@"Error registering custom sound device: %@", [NSError ts_errorMessageFromCode:error]);
-    }
-
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSLog(@"Registering custom sound device, sample rate = %f ***", AUDIO_SAMPLE_RATE);
+        int error = ts3client_registerCustomDevice(self.audioIO.deviceID.UTF8String,
+                                                   self.audioIO.deviceDisplayName.UTF8String,
+                                                   self.audioIO.sampleRate,
+                                                   self.audioIO.numChannels,
+                                                   self.audioIO.sampleRate,
+                                                   self.audioIO.numChannels);
+        if (error != ERROR_ok) {
+            NSLog(@"Error registering custom sound device: %@", [NSError ts_errorMessageFromCode:error]);
+        }
+    });
 }
 
 - (void)unregisterAudioDevice
@@ -653,7 +654,7 @@
 
 - (void)dealloc
 {
-    [self unregisterAudioDevice];
+//    [self unregisterAudioDevice];
 //    [self destroyServerConnectionHandler];
 //    [self destroyLibrary];
 }
