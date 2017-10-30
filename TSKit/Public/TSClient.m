@@ -454,11 +454,15 @@
     /* Query client nickname from ID */
     char *name;
     NSString *nameString = @"";
-    if (ts3client_getClientVariableAsString(self.serverConnectionHandlerID, (anyID) clientID, CLIENT_NICKNAME, &name) == ERROR_ok) {
-        nameString = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
-    }
-
+    
     NSLog(@"onTalkStatusChangeEvent status: %i isReceivedWhisper: %i clientID: %i", status, isReceivedWhisper, clientID);
+    
+    NSUInteger error;
+    if ((error = ts3client_getClientVariableAsString(self.serverConnectionHandlerID, (anyID) clientID, CLIENT_NICKNAME, &name)) == ERROR_ok) {
+        nameString = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
+    } else {
+        NSLog(@"ts3client_getClientVariableAsString: %@", [NSError ts_errorMessageFromCode:error]);
+    }
 
     id <TSClientDelegate> o = self.delegate;
     if ([o respondsToSelector:@selector(client:clientName:clientID:talkStatusChanged:)]) {
