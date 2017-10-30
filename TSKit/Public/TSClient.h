@@ -64,6 +64,9 @@ typedef void (^TSClientAuthPrompt)(TSClientAuthCallback authCallback);
 
 @property (nonatomic, strong, readonly) TSChannel *currentChannel;
 
+/// The current connection status
+@property (nonatomic, assign, readonly) TSConnectionStatus currentStatus;
+
 @property (nonatomic, assign, readonly) UInt64 serverConnectionHandlerID;
 
 @property (nonatomic, weak, nullable) id <TSClientDelegate> delegate;

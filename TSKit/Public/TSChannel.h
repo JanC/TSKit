@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithUid:(uint64_t)uid;
 
+- (instancetype)initWithName:(NSString*) name;
+
 + (instancetype)channelWithUid:(uint64_t)uid
                           name:(nullable NSString *)name
                          topic:(nullable NSString *)topic

@@ -35,6 +35,7 @@
 
 
 @property (nonatomic, strong, readwrite) TSChannel *currentChannel;
+@property (nonatomic, assign, readwrite) TSConnectionStatus currentStatus;
 @property (nonatomic, assign, readwrite) anyID ownClientID;
 
 // Dictionary of blocks and "returnCodes" called by the onServerErrorEvent. See docs for "Return code"
@@ -357,7 +358,8 @@
         [self closeAudio];
     }
 
-    [self.delegate client:self connectStatusChanged:(TSConnectionStatus) newStatus];
+    self.currentStatus = (TSConnectionStatus)newStatus;
+    [self.delegate client:self connectStatusChanged:self.currentStatus];
 
     if (errorNumber > 0) {
 
