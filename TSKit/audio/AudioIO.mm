@@ -82,7 +82,7 @@ static OSStatus	AudioOutCallback(void *inRefCon,
 	if ((self = [super init]))
     {
         _allowRecord = allowRecord;
-        _deviceID = @kWaveDeviceID;
+        _deviceID = [[NSUUID UUID] UUIDString];
         _deviceDisplayName = @kWaveDeviceDisplayName;
         
         _sampleRate = AUDIO_SAMPLE_RATE;
