@@ -38,11 +38,6 @@
 
 
     self.client = [[TSClient alloc] initWithOptions:options];
-
-    [self.client connectToChannels:@[@"17510"] completion:^(BOOL success, NSError *_Nonnull error) {
-        NSLog(@"");
-    }];
-
     self.client.delegate = self;
 }
 
@@ -54,6 +49,23 @@
 
     }
     [super prepareForSegue:segue sender:sender];
+}
+
+
+#pragma mark - Actions
+
+-(IBAction)connectAction:(id)sender
+{
+    [self.client connectToChannels:@[@"17510"] completion:^(BOOL success, NSError *_Nonnull error) {
+        NSLog(@"");
+    }];
+}
+
+-(IBAction)disconnectAction:(id)sender
+{
+    [self.client disconnect];
+    [self.channels removeAllObjects];
+    [self.tableView reloadData];
 }
 
 
@@ -104,9 +116,9 @@
     }
 }
 
-- (void)client:(TSClient *)client clientName:(NSString *)clientName clientID:(int)clientID talkStatusChanged:(BOOL)talking
+- (void)client:(TSClient *)client user:(TSUser *)user talkStatusChanged:(BOOL)talking;
 {
-    NSLog(@"%@ is talking %@ in %@", clientName, @(talking), client.currentChannel.name);
+    NSLog(@"%@ is talking %@ in %@", [NSString stringWithFormat:@"%@%@", user.name, user.isMuted ? @" (muted)" : @""], @(talking), client.currentChannel.name);
 }
 
 - (void)client:(TSClient *)client onConnectionError:(NSError *)error
@@ -134,7 +146,6 @@
     }]];
 
     [self.tableView reloadData];
-
 }
 
 

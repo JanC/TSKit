@@ -48,7 +48,7 @@ typedef void (^TSClientAuthPrompt)(TSClientAuthCallback authCallback);
 
 - (void)client:(TSClient *)client connectStatusChanged:(TSConnectionStatus)status;
 
-- (void)client:(TSClient *)client clientName:(NSString *)clientName clientID:(int)clientID talkStatusChanged:(BOOL)talking;
+- (void)client:(TSClient *)client user:(TSUser *)user talkStatusChanged:(BOOL)talking;
 
 - (void)client:(TSClient *)client onConnectionError:(NSError *)error;
 
@@ -79,6 +79,13 @@ typedef void (^TSClientAuthPrompt)(TSClientAuthCallback authCallback);
 
 - (NSArray<TSChannel *> *)listChannels;
 
+/**
+ * Mutes the user and sets its 'muted' property in case of success
+ * @param user The user to mute
+ * @param mute The desired mute state
+ * @param pError The optional error
+ */
+-(BOOL)muteUser:(TSUser*) user mute:(BOOL) mute error:(__autoreleasing NSError **)pError;
 
 /**
  * Moves to a specified channel

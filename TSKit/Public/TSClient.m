@@ -167,6 +167,27 @@
     return channels;
 }
 
+-(BOOL)muteUser:(TSUser*) user mute:(BOOL) mute error:(__autoreleasing NSError **)pError
+{
+    const anyID ids[2] = { user.uid, 0 };
+    BOOL success = YES;
+    NSUInteger error;
+    if(mute) {
+        if((error = ts3client_requestMuteClients(self.serverConnectionHandlerID, ids, NULL)) != ERROR_ok) {
+            success = NO;
+            if(pError != NULL) *pError = [NSError ts_errorWithCode:error];
+        }
+    } else {
+        if((error = ts3client_requestUnmuteClients(self.serverConnectionHandlerID, ids, NULL)) != ERROR_ok) {
+            success = NO;
+            if(pError != NULL) *pError = [NSError ts_errorWithCode:error];
+        }
+    }
+    if(success) {
+        user.muted = !user.isMuted;
+    }
+    return success;
+}
 - (void)moveToChannel:(TSChannel *)channel authCallback:(TSClientAuthPrompt)authPrompt completion:(void (^)(BOOL success, NSError *error))completion;
 {
 
@@ -272,17 +293,7 @@
 
     NSMutableArray *users = [NSMutableArray array];
     for (i = 0; ids[i]; i++) {
-        char *name;
-
-        TSUser *user = [TSUser userWithUid:ids[i] name:@"unknown"];
-
-        if ((error = ts3client_getClientVariableAsString(self.serverConnectionHandlerID, ids[i], CLIENT_NICKNAME, &name)) == ERROR_ok) {
-            user.name = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
-        } else {
-            NSLog(@"Error querying client nickname: %d\n", error);
-        }
-        ts3client_freeMemory(name);
-
+        TSUser *user = [TSHelper clientDetails:ids[i] connectionID:self.serverConnectionHandlerID];
         [users addObject:user];
     }
 
@@ -450,26 +461,15 @@
     int status = [parameters[@"status"] intValue];
     int isReceivedWhisper = [parameters[@"isReceivedWhisper"] intValue];
     int clientID = [parameters[@"clientID"] intValue];
-
-    /* Query client nickname from ID */
-    char *name;
-    NSString *nameString = @"";
     
     NSLog(@"onTalkStatusChangeEvent status: %i isReceivedWhisper: %i clientID: %i", status, isReceivedWhisper, clientID);
-    
-    NSUInteger error;
-    if ((error = ts3client_getClientVariableAsString(self.serverConnectionHandlerID, (anyID) clientID, CLIENT_NICKNAME, &name)) == ERROR_ok) {
-        nameString = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
-    } else {
-        NSLog(@"ts3client_getClientVariableAsString: %@", [NSError ts_errorMessageFromCode:error]);
-    }
 
     id <TSClientDelegate> o = self.delegate;
-    if ([o respondsToSelector:@selector(client:clientName:clientID:talkStatusChanged:)]) {
-        [o client:self clientName:nameString clientID:clientID talkStatusChanged:status != STATUS_NOT_TALKING];
+    if ([o respondsToSelector:@selector(client:user:talkStatusChanged:)]) {
+        TSUser *user = [TSHelper clientDetails:clientID connectionID:self.serverConnectionHandlerID];
+        [o client:self user:user talkStatusChanged:status != STATUS_NOT_TALKING];
     }
 }
-
 
 - (void)onServerErrorEvent:(NSDictionary *)parameters
 {

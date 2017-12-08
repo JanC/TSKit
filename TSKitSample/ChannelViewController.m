@@ -38,11 +38,26 @@
     return self.users.count;
 }
 
+#pragma mark - UITAbleViewDataSource
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     cell.textLabel.text = self.users[(NSUInteger) indexPath.row].name;
     return cell;
+}
+
+#pragma mark - UITAbleViewDataDelegate
+
+-(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    TSUser *user = self.users[indexPath.row];
+    NSError *error;
+    NSLog(@"Muting user: %@ mute: %@", user.name, @(!user.isMuted));
+    BOOL success = [self.client muteUser:user mute:user.isMuted error:&error];
+    if(!success) {
+        NSLog(@"Failed to mute user: %@", user);
+    }
 }
 
 #pragma mark - Overrides
