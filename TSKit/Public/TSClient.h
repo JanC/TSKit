@@ -73,7 +73,8 @@ typedef void (^TSClientAuthPrompt)(TSClientAuthCallback authCallback);
 
 - (instancetype)initWithOptions:(TSClientOptions *)options;
 
-- (void)connectToChannels:(nullable NSArray<NSString *>*)initialChannels completion:(void (^ _Nullable)(BOOL success, NSError *error))completion;
+- (void)connect:(nullable NSArray<NSString *>*)initialChannels
+     completion:(void (^ _Nullable)(BOOL success, NSError *error))completion NS_SWIFT_NAME(connect(initialChannels:completion:));
 
 -(void)disconnect;
 

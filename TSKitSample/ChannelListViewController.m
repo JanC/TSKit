@@ -56,7 +56,7 @@
 
 -(IBAction)connectAction:(id)sender
 {
-    [self.client connectToChannels:@[@"17510"] completion:^(BOOL success, NSError *_Nonnull error) {
+    [self.client connect:@[@"17510"] completion:^(BOOL success, NSError *_Nonnull error) {
         NSLog(@"");
     }];
 }

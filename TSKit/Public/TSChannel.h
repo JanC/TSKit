@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface TSChannel : NSObject
 
 @property (nonatomic, assign) UInt64 uid;
-@property (nonatomic, copy, nullable) NSString *name;
+@property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy, nullable) NSString *topic;
 @property (nonatomic, copy, nullable) NSString *channelDescription;
 

@@ -64,7 +64,8 @@
     return self;
 }
 
-- (void)connectToChannels:(nullable NSArray<NSString *>*)initialChannels completion:(void (^ _Nullable)(BOOL success, NSError *error))completion
+- (void)connect:(nullable NSArray<NSString *>*)initialChannels
+     completion:(void (^ _Nullable)(BOOL success, NSError *error))completion
 {
     if (!self.identity) {
         self.identity = [self.class createIdentity];
