@@ -262,8 +262,8 @@
 		8AF368821FDB4828000C7CB7 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				C4D8743825F442D0C687743B /* ChannelViewController.m */,
 				C4D872FE6914B2804D42CDB1 /* ChannelViewController.h */,
+				C4D8743825F442D0C687743B /* ChannelViewController.m */,
 				8A04A40D1FA22058002F2285 /* ChannelListViewController.h */,
 				8A04A40E1FA22058002F2285 /* ChannelListViewController.m */,
 			);

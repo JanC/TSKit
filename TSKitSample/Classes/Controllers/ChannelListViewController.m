@@ -33,7 +33,7 @@
     TSClientOptions *options = [[TSClientOptions alloc] initWithHost:@"192.168.0.12"
                                                                 port:9986
                                                             nickName:@"ios"
-                                                            password:@"pe2014"
+                                                            password:@"12345"
                                                          receiveOnly:YES];
 
 
@@ -56,7 +56,7 @@
 
 -(IBAction)connectAction:(id)sender
 {
-    [self.client connect:@[@"17510"] completion:^(BOOL success, NSError *_Nonnull error) {
+    [self.client connect:nil completion:^(BOOL success, NSError *_Nonnull error) {
         NSLog(@"");
     }];
 }
