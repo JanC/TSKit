@@ -23,15 +23,14 @@
 		8A04A41E1FA22063002F2285 /* TSKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A04A3C71FA207C6002F2285 /* TSKit.framework */; };
 		8A04A41F1FA22063002F2285 /* TSKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8A04A3C71FA207C6002F2285 /* TSKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8AF368801FDB401D000C7CB7 /* ExampleSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF3687F1FDB401D000C7CB7 /* ExampleSwift.swift */; };
+		8AF368831FDB4839000C7CB7 /* ChannelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D8743825F442D0C687743B /* ChannelViewController.m */; };
 		C4D87069EFC1A7D035E5F0CF /* TSChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D8722CC50748F4BFD61CC9 /* TSChannel.m */; };
-		C4D8728CC4E6F0D85A407D1B /* ChannelViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D872FE6914B2804D42CDB1 /* ChannelViewController.h */; };
 		C4D873E8017B8B151AAF0644 /* NSError+TSError.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D873581E9DE5CD88A7DC5B /* NSError+TSError.h */; };
 		C4D87464F692D73AF1179371 /* TSConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D87894AC50D2E8D817D33F /* TSConnectionManager.m */; };
 		C4D87540E7191D01CF6B1065 /* NSError+TSError.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D87641C17AF90FE29A384E /* NSError+TSError.m */; };
 		C4D875CB4AEDC84E93BEA985 /* TSUser.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D87EF0CD4BC214DAA5D4EB /* TSUser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C4D875E68B847774DB356F9A /* TSClient.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D8721AB8868E1A786CDE64 /* TSClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C4D8765EDF55FAB250639D01 /* TSClient+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D8783881DE406D4A312BAC /* TSClient+Private.h */; };
-		C4D876928BC5237D8FD157C7 /* ChannelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D8743825F442D0C687743B /* ChannelViewController.m */; };
 		C4D8798F8FCC5C5B36922BB3 /* TSChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D871CE200A848D4D0743F3 /* TSChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C4D87BFA1E448C9AC23C3C1A /* TSClientOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D87762DF015817A181B47D /* TSClientOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C4D87CEF1F2604920A3A0171 /* TSHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D87A8CD83641B4D9E0A39A /* TSHelper.m */; };
@@ -237,23 +236,55 @@
 		8A04A4091FA22057002F2285 /* TSKitSample */ = {
 			isa = PBXGroup;
 			children = (
-				8A04A40A1FA22058002F2285 /* AppDelegate.h */,
-				8A04A40B1FA22058002F2285 /* AppDelegate.m */,
-				8A04A40D1FA22058002F2285 /* ChannelListViewController.h */,
-				8A04A40E1FA22058002F2285 /* ChannelListViewController.m */,
+				8AF368811FDB4811000C7CB7 /* Classes */,
 				8A04A4101FA22058002F2285 /* Main.storyboard */,
 				8A04A4131FA22058002F2285 /* Assets.xcassets */,
 				8A04A4151FA22058002F2285 /* LaunchScreen.storyboard */,
 				8A04A4181FA22058002F2285 /* Info.plist */,
 				8A04A4191FA22058002F2285 /* main.m */,
-				C4D8743825F442D0C687743B /* ChannelViewController.m */,
-				C4D872FE6914B2804D42CDB1 /* ChannelViewController.h */,
-				C4D879373F50503195D7CE2E /* UIViewController+TSViewController.m */,
-				C4D87012011B87E4FC1C2E61 /* UIViewController+TSViewController.h */,
-				8AF3687F1FDB401D000C7CB7 /* ExampleSwift.swift */,
 				8AF3687E1FDB401D000C7CB7 /* TSKitSample-Bridging-Header.h */,
 			);
 			path = TSKitSample;
+			sourceTree = "<group>";
+		};
+		8AF368811FDB4811000C7CB7 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				8A04A40A1FA22058002F2285 /* AppDelegate.h */,
+				8A04A40B1FA22058002F2285 /* AppDelegate.m */,
+				8AF368851FDB484C000C7CB7 /* Samples */,
+				8AF368841FDB483C000C7CB7 /* Categories */,
+				8AF368821FDB4828000C7CB7 /* Controllers */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		8AF368821FDB4828000C7CB7 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				C4D8743825F442D0C687743B /* ChannelViewController.m */,
+				C4D872FE6914B2804D42CDB1 /* ChannelViewController.h */,
+				8A04A40D1FA22058002F2285 /* ChannelListViewController.h */,
+				8A04A40E1FA22058002F2285 /* ChannelListViewController.m */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		8AF368841FDB483C000C7CB7 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				C4D87012011B87E4FC1C2E61 /* UIViewController+TSViewController.h */,
+				C4D879373F50503195D7CE2E /* UIViewController+TSViewController.m */,
+			);
+			path = Categories;
+			sourceTree = "<group>";
+		};
+		8AF368851FDB484C000C7CB7 /* Samples */ = {
+			isa = PBXGroup;
+			children = (
+				8AF3687F1FDB401D000C7CB7 /* ExampleSwift.swift */,
+			);
+			path = Samples;
 			sourceTree = "<group>";
 		};
 		C4D8754BD5481759D8462993 /* Private */ = {
@@ -298,7 +329,6 @@
 				C4D8798F8FCC5C5B36922BB3 /* TSChannel.h in Headers */,
 				C4D875E68B847774DB356F9A /* TSClient.h in Headers */,
 				C4D8765EDF55FAB250639D01 /* TSClient+Private.h in Headers */,
-				C4D8728CC4E6F0D85A407D1B /* ChannelViewController.h in Headers */,
 				C4D875CB4AEDC84E93BEA985 /* TSUser.h in Headers */,
 				C4D87BFA1E448C9AC23C3C1A /* TSClientOptions.h in Headers */,
 				C4D87F83362CDB213CF0870F /* TSHelper.h in Headers */,
@@ -415,7 +445,6 @@
 				C4D87464F692D73AF1179371 /* TSConnectionManager.m in Sources */,
 				C4D87540E7191D01CF6B1065 /* NSError+TSError.m in Sources */,
 				C4D87069EFC1A7D035E5F0CF /* TSChannel.m in Sources */,
-				C4D876928BC5237D8FD157C7 /* ChannelViewController.m in Sources */,
 				C4D87E9B2CA888650E557B7A /* TSUser.m in Sources */,
 				C4D87E62DE5E0BBD005B7661 /* TSClientOptions.m in Sources */,
 				C4D87CEF1F2604920A3A0171 /* TSHelper.m in Sources */,
@@ -426,6 +455,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8AF368831FDB4839000C7CB7 /* ChannelViewController.m in Sources */,
 				8A04A40F1FA22058002F2285 /* ChannelListViewController.m in Sources */,
 				8A04A41A1FA22058002F2285 /* main.m in Sources */,
 				8A04A40C1FA22058002F2285 /* AppDelegate.m in Sources */,

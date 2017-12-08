@@ -385,8 +385,7 @@
 - (void)onNewChannelEvent:(NSDictionary *)parameters
 {
     NSUInteger channelID = [parameters[@"channelID"] unsignedIntValue];
-    int channelParentID = [parameters[@"channelParentID"] intValue];
-
+//    int channelParentID = [parameters[@"channelParentID"] intValue];
     //NSLog(@"onNewChannelEvent channelID: %@ channelParentID: %i", @(channelID), channelParentID);
 
     id <TSClientDelegate> o = self.delegate;
