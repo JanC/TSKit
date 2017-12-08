@@ -108,9 +108,11 @@
 
 #pragma mark - TSClientDelegate
 
-- (void)client:(TSClient *)client connectStatusChanged:(TSConnectionStatus)newStatus
+- (void)client:(TSClient *)client connectStatusChanged:(TSConnectionStatus)status
 {
-    if (newStatus == TSConnectionStatusEstablished) {
+    NSLog(@"Connection status: %@", @(status));
+    
+    if (status == TSConnectionStatusEstablished) {
         [self.tableView reloadData];
         NSLog(@"channels: %@", self.channels);
     }

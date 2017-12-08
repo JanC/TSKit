@@ -387,7 +387,7 @@
     NSUInteger channelID = [parameters[@"channelID"] unsignedIntValue];
     int channelParentID = [parameters[@"channelParentID"] intValue];
 
-    NSLog(@"onNewChannelEvent channelID: %@ channelParentID: %i", @(channelID), channelParentID);
+    //NSLog(@"onNewChannelEvent channelID: %@ channelParentID: %i", @(channelID), channelParentID);
 
     id <TSClientDelegate> o = self.delegate;
     if ([o respondsToSelector:@selector(client:didReceivedChannel:)]) {
@@ -454,16 +454,17 @@
     int visibility = [parameters[@"visibility"] intValue];
 
     NSLog(@"onClientMoveTimeoutEvent clientID: %i oldChannelID: %i newChannelID: %i visibility: %i", clientID, oldChannelID, newChannelID, visibility);
+    // todo add and call a delegate
 }
 
 
 - (void)onTalkStatusChangeEvent:(NSDictionary *)parameters
 {
     int status = [parameters[@"status"] intValue];
-    int isReceivedWhisper = [parameters[@"isReceivedWhisper"] intValue];
+//    int isReceivedWhisper = [parameters[@"isReceivedWhisper"] intValue];
     int clientID = [parameters[@"clientID"] intValue];
     
-    NSLog(@"onTalkStatusChangeEvent status: %i isReceivedWhisper: %i clientID: %i", status, isReceivedWhisper, clientID);
+    //NSLog(@"onTalkStatusChangeEvent status: %i isReceivedWhisper: %i clientID: %i", status, isReceivedWhisper, clientID);
 
     id <TSClientDelegate> o = self.delegate;
     if ([o respondsToSelector:@selector(client:user:talkStatusChanged:)]) {
