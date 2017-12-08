@@ -60,6 +60,7 @@
     
     if ((error = ts3client_getClientVariableAsString(connectionHandlerId, (anyID) clientId, CLIENT_NICKNAME, &name)) == ERROR_ok) {
         nameString = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
+        ts3client_freeMemory(name);
     } else {
         NSLog(@"ts3client_getClientVariableAsString: %@", [NSError ts_errorMessageFromCode:error]);
     }
@@ -69,7 +70,7 @@
         NSLog(@"Error querying client muted state");
     }
     
-    ts3client_freeMemory(name);
+    
     
     return [TSUser userWithUid:clientId name:nameString muted:clientIsMuted];
     
