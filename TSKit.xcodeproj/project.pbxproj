@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8A04A3CC1FA207C6002F2285 /* TSKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 8A04A3CA1FA207C6002F2285 /* TSKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		8A04A3D71FA209AF002F2285 /* AudioIO.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8A04A3D41FA209AA002F2285 /* AudioIO.mm */; };
+		8A04A3D71FA209AF002F2285 /* AudioIO.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8A04A3D41FA209AA002F2285 /* AudioIO.mm */; settings = {COMPILER_FLAGS = "-w"; }; };
 		8A04A3D81FA209B3002F2285 /* CAAudioBufferList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8A04A3D51FA209AA002F2285 /* CAAudioBufferList.cpp */; };
 		8A04A3DB1FA209D6002F2285 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A04A3DA1FA209D6002F2285 /* AVFoundation.framework */; };
 		8A04A3DD1FA209FD002F2285 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A04A3DC1FA209FD002F2285 /* AudioToolbox.framework */; };
