@@ -150,5 +150,22 @@
     [self.tableView reloadData];
 }
 
+- (void)client:(TSClient *)client user:(TSUser *)user didMove:(TSChannelMove *)move
+{
+    switch(move.visibiliy) {
+        case TSChannelVisibilityEnter:
+            NSLog(@"%@ joins from %@ to %@", user.name, move.fromChannel.name, move.toChannel.name);
+            break;
+        case TSChannelVisibilitySwitch:
+            NSLog(@"%@ moves from %@ to %@", user.name, move.fromChannel.name, move.toChannel.name);
+            break;
+        case TSChannelVisibilityLeave:
+            NSLog(@"%@ leaves from %@ to %@", user.name, move.fromChannel.name, move.toChannel.name);
+            break;
+        case TSChannelVisibilityUnknown:
+            break;
+    }
+}
+
 
 @end

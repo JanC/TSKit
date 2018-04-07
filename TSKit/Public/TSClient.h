@@ -14,6 +14,7 @@
 @class TSUser;
 @class TSClientOptions;
 @class TSHelper;
+@class TSChannelMove;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -49,6 +50,8 @@ typedef void (^TSClientAuthPrompt)(TSClientAuthCallback authCallback);
 - (void)client:(TSClient *)client connectStatusChanged:(TSConnectionStatus)status;
 
 - (void)client:(TSClient *)client user:(TSUser *)user talkStatusChanged:(BOOL)talking;
+
+-(void)client:(TSClient*) client user:(TSUser *)user didMove:(TSChannelMove *) move;
 
 - (void)client:(TSClient *)client onConnectionError:(NSError *)error;
 

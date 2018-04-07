@@ -43,7 +43,8 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
-    cell.textLabel.text = self.users[(NSUInteger) indexPath.row].name;
+    TSUser *user = self.users[(NSUInteger) indexPath.row];
+    cell.textLabel.text = [NSString stringWithFormat:@"%@%@", user.name, user.isMuted ? @" (muted)" : @""];
     return cell;
 }
 
@@ -54,7 +55,8 @@
     TSUser *user = self.users[indexPath.row];
     NSError *error;
     NSLog(@"Muting user: %@ mute: %@", user.name, @(!user.isMuted));
-    BOOL success = [self.client muteUser:user mute:user.isMuted error:&error];
+    BOOL success = [self.client muteUser:user mute:!user.isMuted error:&error];
+    [self.tableView reloadData];
     if(!success) {
         NSLog(@"Failed to mute user: %@", user);
     }

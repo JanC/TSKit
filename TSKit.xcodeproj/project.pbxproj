@@ -25,6 +25,7 @@
 		8AF368801FDB401D000C7CB7 /* ExampleSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF3687F1FDB401D000C7CB7 /* ExampleSwift.swift */; };
 		8AF368831FDB4839000C7CB7 /* ChannelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D8743825F442D0C687743B /* ChannelViewController.m */; };
 		C4D87069EFC1A7D035E5F0CF /* TSChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D8722CC50748F4BFD61CC9 /* TSChannel.m */; };
+		C4D870B0426ED96798FD5FD3 /* TSChannelMove.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D876BD1EFE1639A1EBC7C8 /* TSChannelMove.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C4D873E8017B8B151AAF0644 /* NSError+TSError.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D873581E9DE5CD88A7DC5B /* NSError+TSError.h */; };
 		C4D87464F692D73AF1179371 /* TSConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D87894AC50D2E8D817D33F /* TSConnectionManager.m */; };
 		C4D87540E7191D01CF6B1065 /* NSError+TSError.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D87641C17AF90FE29A384E /* NSError+TSError.m */; };
@@ -33,6 +34,7 @@
 		C4D8765EDF55FAB250639D01 /* TSClient+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D8783881DE406D4A312BAC /* TSClient+Private.h */; };
 		C4D8798F8FCC5C5B36922BB3 /* TSChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D871CE200A848D4D0743F3 /* TSChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C4D87BFA1E448C9AC23C3C1A /* TSClientOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D87762DF015817A181B47D /* TSClientOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C4D87C7F11656EDF6B300B6C /* TSChannelMove.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D87975B21110228815E1A5 /* TSChannelMove.m */; };
 		C4D87CEF1F2604920A3A0171 /* TSHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D87A8CD83641B4D9E0A39A /* TSHelper.m */; };
 		C4D87E62DE5E0BBD005B7661 /* TSClientOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D87A2854DFDA38D12E1877 /* TSClientOptions.m */; };
 		C4D87E9B2CA888650E557B7A /* TSUser.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D87DE71C5AFF315F128BB5 /* TSUser.m */; };
@@ -107,10 +109,12 @@
 		C4D873581E9DE5CD88A7DC5B /* NSError+TSError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+TSError.h"; sourceTree = "<group>"; };
 		C4D8743825F442D0C687743B /* ChannelViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChannelViewController.m; sourceTree = "<group>"; };
 		C4D87641C17AF90FE29A384E /* NSError+TSError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+TSError.m"; sourceTree = "<group>"; };
+		C4D876BD1EFE1639A1EBC7C8 /* TSChannelMove.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSChannelMove.h; sourceTree = "<group>"; };
 		C4D87762DF015817A181B47D /* TSClientOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSClientOptions.h; sourceTree = "<group>"; };
 		C4D8783881DE406D4A312BAC /* TSClient+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TSClient+Private.h"; sourceTree = "<group>"; };
 		C4D87894AC50D2E8D817D33F /* TSConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSConnectionManager.m; sourceTree = "<group>"; };
 		C4D879373F50503195D7CE2E /* UIViewController+TSViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+TSViewController.m"; sourceTree = "<group>"; };
+		C4D87975B21110228815E1A5 /* TSChannelMove.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSChannelMove.m; sourceTree = "<group>"; };
 		C4D87A2854DFDA38D12E1877 /* TSClientOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSClientOptions.m; sourceTree = "<group>"; };
 		C4D87A8CD83641B4D9E0A39A /* TSHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSHelper.m; sourceTree = "<group>"; };
 		C4D87AFB05FBD09D98CB647C /* TSHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSHelper.h; sourceTree = "<group>"; };
@@ -312,6 +316,8 @@
 				C4D87762DF015817A181B47D /* TSClientOptions.h */,
 				C4D87A8CD83641B4D9E0A39A /* TSHelper.m */,
 				C4D87AFB05FBD09D98CB647C /* TSHelper.h */,
+				C4D87975B21110228815E1A5 /* TSChannelMove.m */,
+				C4D876BD1EFE1639A1EBC7C8 /* TSChannelMove.h */,
 			);
 			path = Public;
 			sourceTree = "<group>";
@@ -332,6 +338,7 @@
 				C4D875CB4AEDC84E93BEA985 /* TSUser.h in Headers */,
 				C4D87BFA1E448C9AC23C3C1A /* TSClientOptions.h in Headers */,
 				C4D87F83362CDB213CF0870F /* TSHelper.h in Headers */,
+				C4D870B0426ED96798FD5FD3 /* TSChannelMove.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -448,6 +455,7 @@
 				C4D87E9B2CA888650E557B7A /* TSUser.m in Sources */,
 				C4D87E62DE5E0BBD005B7661 /* TSClientOptions.m in Sources */,
 				C4D87CEF1F2604920A3A0171 /* TSHelper.m in Sources */,
+				C4D87C7F11656EDF6B300B6C /* TSChannelMove.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -15,6 +15,7 @@
 #import "TSClientOptions.h"
 #import "TSClient+Private.h"
 #import "TSHelper.h"
+#import "TSChannelMove.h"
 
 #import <teamspeak/clientlib.h>
 #import <teamspeak/public_errors.h>
@@ -185,7 +186,7 @@
         }
     }
     if(success) {
-        user.muted = !user.isMuted;
+        user.muted = mute;
     }
     return success;
 }
@@ -425,12 +426,40 @@
 
 - (void)onClientMoveEvent:(NSDictionary *)parameters
 {
-    int clientID = [parameters[@"clientID"] intValue];
-    int oldChannelID = [parameters[@"oldChannelID"] intValue];
-    int newChannelID = [parameters[@"newChannelID"] intValue];
+    NSUInteger clientID = [parameters[@"clientID"] unsignedIntValue];
+    NSUInteger oldChannelID = [parameters[@"oldChannelID"] unsignedIntValue];
+    NSUInteger newChannelID = [parameters[@"newChannelID"] unsignedIntValue];
     int visibility = [parameters[@"visibility"] intValue];
 
+    TSUser *user = [TSHelper clientDetails:clientID connectionID:self.serverConnectionHandlerID];
+    TSChannel *fromChannel = [TSHelper channelDetails:oldChannelID connectionID:self.serverConnectionHandlerID];
+    TSChannel *toChannel = [TSHelper channelDetails:newChannelID connectionID:self.serverConnectionHandlerID];
+
+    TSChannelVisibility channelVisibility = TSChannelVisibilityUnknown;
+    switch (visibility) {
+        case ENTER_VISIBILITY:
+            channelVisibility = TSChannelVisibilityEnter;
+            break;
+        case RETAIN_VISIBILITY:
+            channelVisibility = TSChannelVisibilitySwitch;
+            break;
+        case LEAVE_VISIBILITY:
+            channelVisibility = TSChannelVisibilityLeave;
+        default:
+            break;
+    }
+
+    TSChannelMove *move = [[TSChannelMove alloc] init];
+    move.visibiliy = channelVisibility;
+    move.fromChannel = fromChannel;
+    move.toChannel = toChannel;
+
     NSLog(@"onClientMoveEvent clientID: %i oldChannelID: %i newChannelID: %i visibility: %i", clientID, oldChannelID, newChannelID, visibility);
+
+    id <TSClientDelegate> o = self.delegate;
+    if ([o respondsToSelector:@selector(client:user:didMove:)]) {
+        [o client:self user:user didMove:move];
+    }
 }
 
 
