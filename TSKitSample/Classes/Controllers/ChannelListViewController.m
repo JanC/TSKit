@@ -187,13 +187,13 @@
     switch(move.visibiliy) {
         case TSChannelVisibilityEnter:
 
-            NSLog(@"%@ joins from %@ to %@", user.name, move.fromChannel.name, move.toChannel.name);
+            NSLog(@"%@ joins from %@ to %@", user, move.fromChannel, move.toChannel);
             break;
         case TSChannelVisibilitySwitch:
-            NSLog(@"%@ moves from %@ to %@", user.name, move.fromChannel.name, move.toChannel.name);
+            NSLog(@"%@ moves from %@ to %@", user, move.fromChannel, move.toChannel);
             break;
         case TSChannelVisibilityLeave:
-            NSLog(@"%@ leaves from %@ to %@", user.name, move.fromChannel.name, move.toChannel.name);
+            NSLog(@"%@ leaves from %@ to %@", user, move.fromChannel, move.toChannel);
 
             break;
         case TSChannelVisibilityUnknown:
