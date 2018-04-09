@@ -56,7 +56,7 @@
 {
     NSUInteger error;
     char *name;
-    NSString *nameString = @"unknown";
+    NSString *nameString = nil;
     
     if ((error = ts3client_getClientVariableAsString(connectionHandlerId, (anyID) clientId, CLIENT_NICKNAME, &name)) == ERROR_ok) {
         nameString = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
@@ -69,9 +69,7 @@
     if(ts3client_getClientVariableAsInt(connectionHandlerId, clientId, CLIENT_IS_MUTED, &clientIsMuted) != ERROR_ok) {
         NSLog(@"Error querying client muted state");
     }
-    
-    
-    
+
     return [TSUser userWithUid:clientId name:nameString muted:clientIsMuted];
     
 }
