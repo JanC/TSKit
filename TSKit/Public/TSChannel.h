@@ -25,6 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithName:(NSString*) name;
 
+/// Helper method that returns the default channel
++(instancetype) defaultChannel;
+
 + (instancetype)channelWithUid:(uint64_t)uid
                           name:(nullable NSString *)name
                          topic:(nullable NSString *)topic
