@@ -234,11 +234,17 @@
             // success
             if (errorCode == ERROR_ok) {
                 self.currentChannel = channel;
-                completion(YES, nil);
+                if(completion) {
+                    completion(YES, nil);
+                }
+
                 return;
             }
             // error
-            completion(NO, [NSError ts_errorWithCode:errorCode]);
+            if(completion) {
+                completion(NO, [NSError ts_errorWithCode:errorCode]);
+            }
+
 
         };
 
