@@ -5,13 +5,17 @@
 
 #import <UIKit/UIKit.h>
 
-@class TSClient;
+@import TSKit;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ChannelViewController : UITableViewController
 
 @property (nonatomic, strong) TSClient *client;
+
+- (void)addUser:(TSUser *)user;
+
+- (void)removeUser:(TSUser *)user;
 
 @end
 

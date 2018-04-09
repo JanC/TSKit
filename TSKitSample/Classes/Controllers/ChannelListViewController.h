@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @class TSClient;
+@class ChannelViewController;
 
 @interface ChannelListViewController : UIViewController
 

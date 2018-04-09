@@ -62,6 +62,23 @@
     }
 }
 
+#pragma mark - Public
+-(void) addUser:(TSUser*) user
+{
+    NSLog(@"Adding user %@", user.name);
+    self.users = [self.users arrayByAddingObject:user];
+    [self.tableView reloadData];
+}
+
+-(void) removeUser:(TSUser *) user
+{
+    NSLog(@"Removing user %@", user.name);
+    self.users = [self.users filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(TSUser *currentUser, NSDictionary *bindings) {
+        return currentUser.uid != user.uid;
+    }]];
+    [self.tableView reloadData];
+}
+
 #pragma mark - Overrides
 
 - (NSString *)title

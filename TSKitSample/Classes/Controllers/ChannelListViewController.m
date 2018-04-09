@@ -20,6 +20,7 @@
 
 @property (nonatomic, strong) NSMutableArray<TSChannel *> *channels;
 @property (nonatomic, strong) TSClient *client;
+@property (nonatomic, strong) ChannelViewController *channelViewController;
 @end
 
 @implementation ChannelListViewController
@@ -41,11 +42,25 @@
     self.client.delegate = self;
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+
+    if(self.channelViewController != nil) {
+        self.channelViewController = nil;
+
+        // move back to the default channel
+        [self.client moveToChannel:[TSChannel defaultChannel] authCallback:nil completion:nil];
+    }
+
+}
+
+
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(nullable id)sender
 {
     if([segue.identifier isEqualToString:@"ShowChannelSegue"]) {
-        ChannelViewController *channelViewController =  segue.destinationViewController;
-        channelViewController.client = self.client;
+        self.channelViewController = segue.destinationViewController;
+        self.channelViewController.client = self.client;
 
     }
     [super prepareForSegue:segue sender:sender];
@@ -91,6 +106,12 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     TSChannel *channel = self.channels[(NSUInteger) indexPath.row];
+
+    // we are already in this channel
+    if (channel.uid == self.client.currentChannel.uid) {
+        [self performSegueWithIdentifier:@"ShowChannelSegue" sender:nil];
+        return;
+    }
     [self.client moveToChannel:channel authCallback:^(TSClientAuthCallback authCallback) {
 
         [self ts_askForPassword:^(NSString *password) {
@@ -152,8 +173,20 @@
 
 - (void)client:(TSClient *)client user:(TSUser *)user didMove:(TSChannelMove *)move
 {
+
+    // add the user to the user channel list if needed
+    if(self.channelViewController && self.client.currentChannel.uid == move.toChannel.uid) {
+        [self.channelViewController addUser:user];
+    }
+
+    // remove the user to the user channel list if needed
+    if(self.channelViewController && self.client.currentChannel.uid == move.fromChannel.uid) {
+        [self.channelViewController removeUser:user];
+    }
+
     switch(move.visibiliy) {
         case TSChannelVisibilityEnter:
+
             NSLog(@"%@ joins from %@ to %@", user.name, move.fromChannel.name, move.toChannel.name);
             break;
         case TSChannelVisibilitySwitch:
@@ -161,6 +194,7 @@
             break;
         case TSChannelVisibilityLeave:
             NSLog(@"%@ leaves from %@ to %@", user.name, move.fromChannel.name, move.toChannel.name);
+
             break;
         case TSChannelVisibilityUnknown:
             break;
