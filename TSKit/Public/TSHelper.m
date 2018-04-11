@@ -19,7 +19,7 @@
 + (TSChannel *)channelDetails:(UInt64)channelID connectionID:(UInt64) connectionId
 {
     char *name;
-    NSString *nameString = @"";
+    NSString *nameString = @"unknown";
     NSUInteger errorCode;
 
     if ((errorCode = ts3client_getChannelVariableAsString(connectionId, channelID, CHANNEL_NAME, &name)) == ERROR_ok) {
@@ -56,7 +56,7 @@
 {
     NSUInteger error;
     char *name;
-    NSString *nameString = nil;
+    NSString *nameString = @"";
     
     if ((error = ts3client_getClientVariableAsString(connectionHandlerId, (anyID) clientId, CLIENT_NICKNAME, &name)) == ERROR_ok) {
         nameString = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];

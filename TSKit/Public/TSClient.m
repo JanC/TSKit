@@ -460,7 +460,7 @@
     move.fromChannel = fromChannel;
     move.toChannel = toChannel;
 
-    NSLog(@"onClientMoveEvent clientID: %i oldChannelID: %i newChannelID: %i visibility: %i", clientID, oldChannelID, newChannelID, visibility);
+    NSLog(@"onClientMoveEvent clientID: %lu oldChannelID: %lu newChannelID: %lu visibility: %d", (unsigned long)clientID, oldChannelID, newChannelID, visibility);
 
     id <TSClientDelegate> o = self.delegate;
     if ([o respondsToSelector:@selector(client:user:didMove:)]) {
