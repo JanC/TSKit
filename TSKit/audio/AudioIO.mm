@@ -219,16 +219,14 @@ static OSStatus	AudioOutCallback(void *inRefCon,
     AVAudioSessionCategoryOptions options = AVAudioSessionCategoryOptionDefaultToSpeaker | AVAudioSessionCategoryOptionMixWithOthers;// | AVAudioSessionCategoryOptionAllowBluetooth | AVAudioSessionCategoryOptionDefaultToSpeaker;
     
     
-    if(self.allowRecord) {
-        [session setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:options error:&errRet];
-    } else {
-        [session setCategory:AVAudioSessionCategoryPlayback withOptions:options error:&errRet];
-    }
+    [session setCategory:self.allowRecord ? AVAudioSessionCategoryPlayAndRecord : AVAudioSessionCategoryPlayback withOptions:options error:&errRet];
+   
     
     if (errRet)
         NSLog(@"Error in AudioIO::init::setCategory %@",[errRet localizedDescription]);
     
-    [session setMode:AVAudioSessionModeVoiceChat error:&errRet];
+    [session setMode:self.allowRecord ? AVAudioSessionModeVoiceChat : AVAudioSessionModeSpokenAudio error:&errRet];
+    
     if (errRet)
         NSLog(@"Error in AudioIO::interruptionHandler::setMode %@",[errRet localizedDescription]);
     
