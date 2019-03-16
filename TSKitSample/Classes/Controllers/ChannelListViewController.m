@@ -14,13 +14,15 @@
 
 
 
-@interface ChannelListViewController () <TSClientDelegate, UITableViewDataSource, UITableViewDelegate>
+@interface ChannelListViewController () <TSClientDelegate, ChannelViewControllerDelegate, UITableViewDataSource, UITableViewDelegate>
 
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
 
 @property (nonatomic, strong) NSMutableArray<TSChannel *> *channels;
 @property (nonatomic, strong) TSClient *client;
 @property (nonatomic, strong) ChannelViewController *channelViewController;
+
+@property (nonatomic, assign) uint64_t followedUserId;
 @end
 
 @implementation ChannelListViewController
@@ -31,11 +33,11 @@
     [super viewDidLoad];
 
 
-    TSClientOptions *options = [[TSClientOptions alloc] initWithHost:@"192.168.0.12"
+    TSClientOptions *options = [[TSClientOptions alloc] initWithHost:@"192.168.0.10"
                                                                 port:9986
                                                             nickName:@"ios"
-                                                            password:@"12345"
-                                                         receiveOnly:YES];
+                                                            password:@"1234"
+                                                         receiveOnly:NO];
 
 
     self.client = [[TSClient alloc] initWithOptions:options];
@@ -50,7 +52,7 @@
         self.channelViewController = nil;
 
         // move back to the default channel
-        [self.client moveToChannel:[TSChannel defaultChannel] authCallback:nil completion:nil];
+        //[self.client moveToChannel:[TSChannel defaultChannel] authCallback:nil completion:nil];
     }
 
 }
@@ -61,6 +63,7 @@
     if([segue.identifier isEqualToString:@"ShowChannelSegue"]) {
         self.channelViewController = segue.destinationViewController;
         self.channelViewController.client = self.client;
+        self.channelViewController.delegate = self;
 
     }
     [super prepareForSegue:segue sender:sender];
@@ -106,27 +109,44 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     TSChannel *channel = self.channels[(NSUInteger) indexPath.row];
-
-    // we are already in this channel
-    if (channel.uid == self.client.currentChannel.uid) {
-        [self performSegueWithIdentifier:@"ShowChannelSegue" sender:nil];
-        return;
-    }
-    [self.client moveToChannel:channel authCallback:^(TSClientAuthCallback authCallback) {
-
-        [self ts_askForPassword:^(NSString *password) {
-            authCallback(password);
-        }];
-
-    } completion:^(BOOL success, NSError *error) {
-        if (!success) {
-            [self ts_showAlert:@"Could not move to channel" message:error.localizedDescription];
-            return;
-        }
-        [self performSegueWithIdentifier:@"ShowChannelSegue" sender:nil];
-    }];
+    [self navigateToChannel:channel];
 }
 
+#pragma mark - ChannelViewControllerDelegate
+
+-(void) channelViewController:(ChannelViewController*) controller didSelectUser:(TSUser *) user {
+    NSString *title = [NSString stringWithFormat:@"User %@", user.name];
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+
+
+
+    UIAlertAction *muteAction = [UIAlertAction actionWithTitle: user.isMuted ? @"Unmute" : @"Mute" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSError *error;
+        NSLog(@"Muting user: %@ mute: %@", user.name, @(!user.isMuted));
+        BOOL success = [self.client muteUser:user mute:!user.isMuted error:&error];
+        [controller reload];
+
+        if(!success) {
+            NSLog(@"Failed to mute user: %@", user);
+        }
+
+    }];
+
+
+    UIAlertAction *followAction = [UIAlertAction actionWithTitle: [self isFollowing:user.uid] ? @"UnFollow" : @"Follow" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        self.followedUserId = [self isFollowing:user.uid] ? 0 : user.uid;
+    }];
+
+    [alertController addAction:muteAction];
+    [alertController addAction:followAction];
+
+    [self presentViewController:alertController animated:YES completion:nil];
+
+}
+
+-(BOOL) isFollowing:(uint64_t) userId {
+    return self.followedUserId == userId;
+}
 #pragma mark - TSClientDelegate
 
 - (void)client:(TSClient *)client connectStatusChanged:(TSConnectionStatus)status
@@ -197,8 +217,50 @@
 
             break;
         case TSChannelVisibilityUnknown:
+            NSLog(@"Unknown visibility for user %@ from %@ to %@", user, move.fromChannel, move.toChannel);
             break;
     }
+
+    [self followUser:user toChannel:move.toChannel];
+
+}
+
+-(void) followUser:(TSUser *)user toChannel:(TSChannel *) channel
+{
+    if(self.client.ownClientID == user.uid) {
+        NSLog(@"Not following self move") ;
+        return;
+    }
+    
+    if(![self isFollowing:user.uid]) {
+        NSLog(@"Not following unfollowed user '%@'", user.name) ;
+        return;
+    }
+
+    NSLog(@"Follow user to %@ (id: %@)", channel.name, @(channel.uid));
+    [self.navigationController popToRootViewControllerAnimated:YES];
+    [self navigateToChannel:channel];
+}
+
+-(void) navigateToChannel:(TSChannel*) channel {
+
+    // we are already in this channel
+    if (channel.uid == self.client.currentChannel.uid) {
+        [self performSegueWithIdentifier:@"ShowChannelSegue" sender:nil];
+        return;
+    }
+
+    [self.client moveToChannel:channel authCallback:^(TSClientAuthCallback authCallback) {
+        [self ts_askForPassword:^(NSString *password) {
+            authCallback(password);
+        }];
+    } completion:^(BOOL success, NSError *error) {
+        if (!success) {
+            [self ts_showAlert:@"Could not move to channel" message:error.localizedDescription];
+            return;
+        }
+        [self performSegueWithIdentifier:@"ShowChannelSegue" sender:nil];
+    }];
 }
 
 

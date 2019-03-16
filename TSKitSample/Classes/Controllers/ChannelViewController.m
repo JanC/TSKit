@@ -20,11 +20,21 @@
 {
     [super viewDidLoad];
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
+
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithTitle:@"Refresh"
+                                                             style:UIBarButtonItemStylePlain
+                                                            target:self
+                                                            action:@selector(refreshClients)];
+    [self.navigationItem setRightBarButtonItem:item animated:YES];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    [self refreshClients];
+}
+
+-(void) refreshClients {
     [self.client listUsersIn:self.client.currentChannel completion:^(NSArray<TSUser*> *users, NSError *error) {
 
         self.users = users;
@@ -44,7 +54,12 @@
 {
     UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     TSUser *user = self.users[(NSUInteger) indexPath.row];
-    cell.textLabel.text = [NSString stringWithFormat:@"%@%@", user.name, user.isMuted ? @" (muted)" : @""];
+    if(user.uid != self.client.ownClientID) {
+        cell.textLabel.text = [NSString stringWithFormat:@"%@%@", user.name, user.isMuted ? @" (muted)" : @""];
+    } else {
+        cell.textLabel.text = [NSString stringWithFormat:@"%@ (me)", user.name];
+    }
+
     return cell;
 }
 
@@ -53,13 +68,7 @@
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     TSUser *user = self.users[indexPath.row];
-    NSError *error;
-    NSLog(@"Muting user: %@ mute: %@", user.name, @(!user.isMuted));
-    BOOL success = [self.client muteUser:user mute:!user.isMuted error:&error];
-    [self.tableView reloadData];
-    if(!success) {
-        NSLog(@"Failed to mute user: %@", user);
-    }
+    [self.delegate channelViewController:self didSelectUser:user];
 }
 
 #pragma mark - Public
@@ -76,6 +85,9 @@
     self.users = [self.users filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(TSUser *currentUser, NSDictionary *bindings) {
         return currentUser.uid != user.uid;
     }]];
+    [self.tableView reloadData];
+}
+-(void) reload {
     [self.tableView reloadData];
 }
 

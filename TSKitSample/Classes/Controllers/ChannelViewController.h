@@ -9,13 +9,23 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class ChannelViewController;
+
+@protocol ChannelViewControllerDelegate <NSObject>
+
+-(void) channelViewController:(ChannelViewController*) controller didSelectUser:(TSUser *) user;
+
+@end
 @interface ChannelViewController : UITableViewController
 
 @property (nonatomic, strong) TSClient *client;
+@property (nonatomic, weak) id<ChannelViewControllerDelegate> delegate;
 
 - (void)addUser:(TSUser *)user;
 
 - (void)removeUser:(TSUser *)user;
+
+-(void) reload;
 
 @end
 
