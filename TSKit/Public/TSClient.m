@@ -37,7 +37,7 @@
 
 @property (nonatomic, strong, readwrite) TSChannel *currentChannel;
 @property (nonatomic, assign, readwrite) TSConnectionStatus currentStatus;
-@property (nonatomic, assign, readwrite) anyID ownClientID;
+@property (nonatomic, assign, readwrite) uint64_t ownClientID;
 
 // Dictionary of blocks and "returnCodes" called by the onServerErrorEvent. See docs for "Return code"
 @property (nonatomic, strong, readwrite) NSMutableDictionary<NSString *, TSClientErrorBlock> *ts3clientReturnCodesCallbacks;
@@ -244,8 +244,6 @@
             if(completion) {
                 completion(NO, [NSError ts_errorWithCode:errorCode]);
             }
-
-
         };
 
         // request the actual move

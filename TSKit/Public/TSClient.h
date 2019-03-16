@@ -70,6 +70,8 @@ typedef void (^TSClientAuthPrompt)(TSClientAuthCallback authCallback);
 /// The current connection status
 @property (nonatomic, assign, readonly) TSConnectionStatus currentStatus;
 
+@property (nonatomic, assign, readonly) uint64_t ownClientID;
+
 @property (nonatomic, assign, readonly) UInt64 serverConnectionHandlerID;
 
 @property (nonatomic, weak, nullable) id <TSClientDelegate> delegate;
