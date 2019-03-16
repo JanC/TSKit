@@ -28,4 +28,14 @@
     return [[self alloc] initWithUid:uid name:name muted:muted];
 }
 
+- (NSString *)description
+{
+    NSMutableString *description = [NSMutableString stringWithFormat:@"<%@: ", NSStringFromClass([self class])];
+    [description appendFormat:@"self.uid=%llu", self.uid];
+    [description appendFormat:@", self.name=%@", self.name];
+    [description appendString:@">"];
+    return description;
+}
+
+
 @end
