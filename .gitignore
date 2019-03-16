@@ -115,4 +115,12 @@ xcuserdata/
 /*.gcno
 
 # End of https://www.gitignore.io/api/appcode,xcode,cocoapods,carthage
-/TSServer
+tools/ts3_sdk*
+tools/**/*.o
+tools/**/logs/
+tools/client/ts3_client_sample
+tools/client/soundbackends
+tools/client/identity.txt
+tools/server/ts3_server_sample
+tools/server/keypair*
+

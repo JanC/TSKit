@@ -108,14 +108,27 @@ extension SampleViewController: TSClientDelegate {
 
 # Development
 
-## Test Server
-To run a local SDK server, [download the SDK](https://www.teamspeak.com/en/downloads.html#) and use one of the server examples:
+## Test Server & Cvient
+To run a local SDK server and client for debugging purposes, [download the SDK](https://www.teamspeak.com/en/downloads.html#) into to server directory and build & run the examples
+
+**Server**
 
 ```bash
-cd ts3_sdk_3.0.4/examples/server
-make -f Makefile.macosx 
+cd tools/server/
+make
 ./ts3_server_sample 
 ```
+
+**Client**
+
+```bash
+cd tools/client
+make
+# ip port password receiveonly clientname
+./ts3_client_sample localhost 9986 1234 0 client-term
+```
+
+
 
 ## Library
 The `TSKit` uses a compiled "fat" `libts3client.a` static library that is included in the downloaded zip. In order to merge all the architectures for both the iOS Simulator and the device:
