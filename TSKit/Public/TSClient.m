@@ -109,6 +109,7 @@
 
     if (error != ERROR_ok) {
         NSLog(@"Error connecting to server: %@", [NSError ts_errorMessageFromCode:error]);
+        
         if (completion) {
             completion(NO, [NSError ts_errorWithCode:error]);
         }
@@ -119,6 +120,9 @@
     [self openAudio];
 
     if (completion) {
+        // we blindly assume that we are connected.
+        // Instead, we should keep a reference to the completion block and monitor the onConnectStatusChangedEvent
+        self.currentStatus = TSConnectionStatusConnected;
         completion(YES, nil);
     }
 
@@ -138,6 +142,7 @@
     if (error != ERROR_ok) {
         NSLog(@"Error connecting to server: %@", [NSError ts_errorMessageFromCode:error]);
     }
+    self.currentStatus = TSConnectionStatusDisconnected;
 }
 
 - (NSArray *)listChannels
