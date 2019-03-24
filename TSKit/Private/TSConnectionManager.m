@@ -156,6 +156,17 @@ void onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, 
     }
 }
 
+void onChannelSubscribeFinishedEvent(uint64 serverConnectionHandlerID) {
+    printf("onChannelSubscribeFinishedEvent");
+    @autoreleasepool {
+        NSDictionary *params = @{ @"handlerID": @(serverConnectionHandlerID)};
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[TSConnectionManager sharedManager] onChannelSubscribeFinishedEvent:params];
+        });
+    }
+}
+
 void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID)
 {
     @autoreleasepool {
@@ -201,6 +212,12 @@ void onServerErrorEvent(uint64 serverConnectionHandlerID, const char *errorMessa
 {
     TSClient *client = self.connections[parameters[@"handlerID"]];
     [client onConnectStatusChangedEvent:parameters];
+}
+
+-(void)onChannelSubscribeFinishedEvent:(NSDictionary*) parameters
+{
+    TSClient *client = self.connections[parameters[@"handlerID"]];
+    [client onChannelSubscribeFinishedEvent:parameters];
 }
 
 /*
@@ -352,6 +369,7 @@ void onServerErrorEvent(uint64 serverConnectionHandlerID, const char *errorMessa
     funcs.onClientMoveTimeoutEvent = onClientMoveTimeoutEvent;
     funcs.onTalkStatusChangeEvent = onTalkStatusChangeEvent;
     funcs.onServerErrorEvent = onServerErrorEvent;
+    funcs.onChannelSubscribeFinishedEvent = onChannelSubscribeFinishedEvent;
 
     /* Initialize client lib with callbacks */
     unsigned int error = ts3client_initClientLib(&funcs, 0, LogType_CONSOLE, NULL, NULL);

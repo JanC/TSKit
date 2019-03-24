@@ -101,7 +101,7 @@ typedef void (^TSClientAuthPrompt)(TSClientAuthCallback authCallback);
  */
 - (void)moveToChannel:(TSChannel *)channel authCallback:(_Nullable TSClientAuthPrompt)authPrompt completion:(void(^_Nullable)(BOOL success, NSError *error)) completion;
 
-- (NSArray<TSUser *> *)listUsersInChannel:(TSChannel *)channel error:(__autoreleasing NSError**) error;
+- (NSArray<TSUser *> * _Nullable)listUsersInChannel:(TSChannel *)channel error:(__autoreleasing NSError**) error;
 
 
 @end

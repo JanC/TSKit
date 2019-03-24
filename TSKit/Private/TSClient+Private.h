@@ -121,4 +121,6 @@ typedef void (^TSClientErrorBlock)(NSString* message, NSUInteger errorCode, NSSt
  */
 - (void)onServerErrorEvent:(NSDictionary *)parameters;
 
+- (void)onChannelSubscribeFinishedEvent:(NSDictionary *)parameters;
+
 @end

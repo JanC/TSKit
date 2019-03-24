@@ -78,6 +78,11 @@ struct WaveHeader {
 	unsigned int dataLen;
 };
 
+
+void showChannelClients(uint64 serverConnectionHandlerID, uint64 channelID);
+void showChannels(uint64 serverConnectionHandlerID);
+void requestSubscribeToChannels(uint64 serverConnectionHandlerID);
+
 /*
  * Callback for connection status change.
  * Connection status switches through the states STATUS_DISCONNECTED, STATUS_CONNECTING, STATUS_CONNECTED and STATUS_CONNECTION_ESTABLISHED.
@@ -93,6 +98,21 @@ void onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus,
 	/* Failed to connect ? */
 	if(newStatus == STATUS_DISCONNECTED && errorNumber == ERROR_failed_connection_initialisation) {
 		printf("Looks like there is no server running.\n");
+	}
+	if(newStatus == STATUS_CONNECTION_ESTABLISHED) {
+		requestSubscribeToChannels(serverConnectionHandlerID);
+	}
+}
+
+void requestSubscribeToChannels(uint64 serverConnectionHandlerID) {
+	unsigned int error;
+	printf("Requesting ts3client_requestChannelSubscribeAll\n");
+	if ((error = ts3client_requestChannelSubscribeAll(serverConnectionHandlerID, NULL)) != ERROR_ok) {
+		char* errormsg;
+		if(ts3client_getErrorMessage(error, &errormsg) == ERROR_ok) {
+			printf("Error in ts3client_requestChannelSubscribeAll: %s\n", errormsg);
+			ts3client_freeMemory(errormsg);
+		}
 	}
 }
 
@@ -110,6 +130,7 @@ void onNewChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint6
 	unsigned int error;
 
 	printf("onNewChannelEvent: %llu %llu %llu\n", (unsigned long long)serverConnectionHandlerID, (unsigned long long)channelID, (unsigned long long)channelParentID);
+
     if((error = ts3client_getChannelVariableAsString(serverConnectionHandlerID, channelID, CHANNEL_NAME, &name)) == ERROR_ok) {
 		printf("New channel: %llu %s \n", (unsigned long long)channelID, name);
         ts3client_freeMemory(name);  /* Release dynamically allocated memory only if function succeeded */
@@ -120,6 +141,12 @@ void onNewChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, uint6
 		    ts3client_freeMemory(errormsg);
         }
 	}
+}
+
+void onChannelSubscribeFinishedEvent(uint64 serverConnectionHandlerID) {
+	printf("onChannelSubscribeFinishedEvent\n");
+	//showChannelClients(serverConnectionHandlerID, 3);
+	showChannels(serverConnectionHandlerID);
 }
 
 /*
@@ -495,6 +522,8 @@ void showChannels(uint64 serverConnectionHandlerID) {
         }
         printf("%llu - %s\n", (unsigned long long)ids[i], name);
         ts3client_freeMemory(name);
+
+		showChannelClients(serverConnectionHandlerID, ids[i]);
     }
     printf("\n");
 
@@ -1222,6 +1251,7 @@ int main(int argc, char* argv[]) {
 	funcs.onCustomPacketEncryptEvent        = onCustomPacketEncryptEvent;
 	funcs.onCustomPacketDecryptEvent        = onCustomPacketDecryptEvent;
 	funcs.onEditMixedPlaybackVoiceDataEvent = onEditMixedPlaybackVoiceDataEvent;
+	funcs.onChannelSubscribeFinishedEvent   = onChannelSubscribeFinishedEvent;
 #ifdef CUSTOM_PASSWORDS
 	funcs.onClientPasswordEncrypt           = onClientPasswordEncrypt;
 #endif

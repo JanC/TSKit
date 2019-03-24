@@ -39,6 +39,8 @@
 @property (nonatomic, assign, readwrite) TSConnectionStatus currentStatus;
 @property (nonatomic, assign, readwrite) uint64_t ownClientID;
 
+@property (nonatomic, assign, readwrite) BOOL isSubscribedToChannels;
+
 // Dictionary of blocks and "returnCodes" called by the onServerErrorEvent. See docs for "Return code"
 @property (nonatomic, strong, readwrite) NSMutableDictionary<NSString *, TSClientErrorBlock> *ts3clientReturnCodesCallbacks;
 
@@ -55,6 +57,7 @@
         self.audioIO = [[AudioIO alloc] initWithAllowRecord:!options.receiveOnly];
         self.audioIO.delegate = self;
 
+        self.isSubscribedToChannels = NO;
 
         [TSConnectionManager sharedManager];
         [self spawnServerConnectionHandler];
@@ -143,9 +146,10 @@
         NSLog(@"Error connecting to server: %@", [NSError ts_errorMessageFromCode:error]);
     }
     self.currentStatus = TSConnectionStatusDisconnected;
+    self.isSubscribedToChannels = NO;
 }
 
-- (NSArray *)listChannels
+- (NSArray<TSChannel *> *)listChannels
 {
     UInt64 *ids;
     int i;
@@ -305,11 +309,16 @@
         TSUser *user = [TSHelper clientDetails:ids[i] connectionID:self.serverConnectionHandlerID];
         [users addObject:user];
     }
-
-    NSLog(@"Clients in channel %llu on virtual server %llu:\n %@", (unsigned long long) channel.uid, (unsigned long long) self.serverConnectionHandlerID, users);
-
     ts3client_freeMemory(ids);
     return users;
+}
+
+-(void) requestSubscribeToChannels {
+    unsigned int error;
+    NSLog(@"Requesting ts3client_requestChannelSubscribeAll");
+    if ((error = ts3client_requestChannelSubscribeAll(self.serverConnectionHandlerID, NULL)) != ERROR_ok) {
+        NSLog(@"Error in ts3client_requestChannelSubscribeAll: %@", [NSError ts_errorMessageFromCode:error]);
+    }
 }
 
 
@@ -343,10 +352,17 @@
 }
 
 #pragma mark - SDK callbacks on main thread
+- (void)onChannelSubscribeFinishedEvent:(NSDictionary *)parameters {
+    self.isSubscribedToChannels = YES;
+
+    NSArray *channels = [self listChannels];
+    for(TSChannel* channel in channels) {
+        [self callDidReceiveChannelIfNeeded:channel];
+    }
+}
 
 - (void)onConnectStatusChangedEvent:(NSDictionary *)parameters
 {
-
     int newStatus = [parameters[@"newStatus"] intValue];
     NSUInteger errorNumber = [parameters[@"errorNumber"] unsignedIntValue];
 
@@ -366,6 +382,9 @@
         }
 
         UInt64 ownChannelID;
+
+        // Subscribe to all channels to be able to list all clients
+        [self requestSubscribeToChannels];
 
         error = ts3client_getChannelOfClient(self.serverConnectionHandlerID, self.ownClientID, &ownChannelID);
         NSLog(@"Own channel %@", [NSError ts_errorMessageFromCode:error]);
@@ -393,15 +412,8 @@
 - (void)onNewChannelEvent:(NSDictionary *)parameters
 {
     NSUInteger channelID = [parameters[@"channelID"] unsignedIntValue];
-//    int channelParentID = [parameters[@"channelParentID"] intValue];
-    //NSLog(@"onNewChannelEvent channelID: %@ channelParentID: %i", @(channelID), channelParentID);
-
-    id <TSClientDelegate> o = self.delegate;
-    if ([o respondsToSelector:@selector(client:didReceivedChannel:)]) {
-        [o client:self didReceivedChannel:[TSHelper channelDetails:channelID connectionID:self.serverConnectionHandlerID]];
-    }
+    [self callDidReceiveChannelIfNeeded:[TSHelper channelDetails:channelID connectionID:self.serverConnectionHandlerID]];
 }
-
 
 - (void)onNewChannelCreatedEvent:(NSDictionary *)parameters
 {
@@ -409,13 +421,20 @@
     NSString *invokerName = parameters[@"invokerName"];
 
     NSLog(@"onNewChannelCreatedEvent channelID: %@ invokerName: %@", @(channelID), invokerName);
+    [self callDidReceiveChannelIfNeeded:[TSHelper channelDetails:channelID connectionID:self.serverConnectionHandlerID]];
 
-    id <TSClientDelegate> o = self.delegate;
-    if ([o respondsToSelector:@selector(client:didReceivedChannel:)]) {
-        [o client:self didReceivedChannel:[TSHelper channelDetails:channelID connectionID:self.serverConnectionHandlerID]];
-    }
 }
 
+-(void) callDidReceiveChannelIfNeeded:(TSChannel*) channel
+{
+    if(self.isSubscribedToChannels == NO) {
+        return;
+    }
+    id <TSClientDelegate> o = self.delegate;
+    if ([o respondsToSelector:@selector(client:didReceivedChannel:)]) {
+        [o client:self didReceivedChannel:channel];
+    }
+}
 
 - (void)onDelChannelEvent:(NSDictionary *)parameters
 {
