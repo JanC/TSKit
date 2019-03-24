@@ -838,6 +838,7 @@ int main() {
 	createChannel(serverID, "17510");
 	createChannel(serverID, "18012");
 	createChannel(serverID, "18011");
+	createChannel(serverID, "11900");
 	createChannel(serverID, "18010");
 	createChannel(serverID, "14010");
 	createChannel(serverID, "12300");

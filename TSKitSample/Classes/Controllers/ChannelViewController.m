@@ -35,12 +35,10 @@
 }
 
 -(void) refreshClients {
-    [self.client listUsersIn:self.client.currentChannel completion:^(NSArray<TSUser*> *users, NSError *error) {
 
-        self.users = users;
-        [self.tableView reloadData];
+    NSError *error;
+    self.users = [self.client listUsersInChannel:self.client.currentChannel error:&error];
 
-    }];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section

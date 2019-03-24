@@ -178,6 +178,9 @@
 
 - (void)client:(TSClient *)client didReceivedChannel:(TSChannel *)channel
 {
+    NSArray<TSUser*> *users = [client listUsersInChannel:channel error:nil];
+    NSLog(@"Users in %@: %@", channel.name, users);
+
     [self.channels addObject:channel];
     [self.tableView reloadData];
 }

@@ -158,7 +158,7 @@
         return @[];
     }
     if (!ids[0]) {
-        NSLog(@"No channels\n\n");
+        NSLog(@"No channels");
         ts3client_freeMemory(ids);
         return @[];
     }
@@ -167,8 +167,6 @@
     for (i = 0; ids[i]; i++) {
         [channels addObject:[TSHelper channelDetails:ids[i] connectionID:self.serverConnectionHandlerID]];
     }
-
-
     ts3client_freeMemory(ids);  /* Release array */
 
     return channels;
@@ -284,22 +282,22 @@
 
 }
 
-- (void)listUsersIn:(TSChannel *)channel completion:(void (^)(NSArray<TSUser *> *users, NSError *error))completion
+- (NSArray<TSUser *> *)listUsersInChannel:(TSChannel *)channel error:(__autoreleasing NSError**) error
 {
     anyID *ids;
     int i;
-    unsigned int error;
+    unsigned int errorInt;
 
-
-    if ((error = ts3client_getChannelClientList(self.serverConnectionHandlerID, channel.uid, &ids)) != ERROR_ok) {  /* Get array of client IDs */
-        completion(nil, [NSError ts_errorWithCode:error]);
-        return;
+    if ((errorInt = ts3client_getChannelClientList(self.serverConnectionHandlerID, channel.uid, &ids)) != ERROR_ok) {  /* Get array of client IDs */
+        if (error != NULL) {
+            *error = [NSError ts_errorWithCode:errorInt];
+        }
+        return @[];
     }
     if (!ids[0]) {
         NSLog(@"No clients");
         ts3client_freeMemory(ids);
-        completion(nil, nil);
-        return;
+        return @[];
     }
 
     NSMutableArray *users = [NSMutableArray array];
@@ -309,9 +307,9 @@
     }
 
     NSLog(@"Clients in channel %llu on virtual server %llu:\n %@", (unsigned long long) channel.uid, (unsigned long long) self.serverConnectionHandlerID, users);
-    completion(users, nil);
 
     ts3client_freeMemory(ids);
+    return users;
 }
 
 
