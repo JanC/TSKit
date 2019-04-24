@@ -5,7 +5,7 @@
 ![](logo.svg)
 
 
-TSKit is a Objective-C wrapper around the [C TeamSpeak client library](https://www.teamspeak.com/en/teamspeak3sdk.html)
+TSKit is a Objective-C wrapper around the [C TeamSpeak client library](https://www.teamspeak.com/en/downloads/)
 
 Note: This is still work in progress.
 
@@ -108,8 +108,8 @@ extension SampleViewController: TSClientDelegate {
 
 # Development
 
-## Test Server & Cvient
-To run a local SDK server and client for debugging purposes, [download the SDK](https://www.teamspeak.com/en/downloads.html#) into to server directory and build & run the examples
+## Test Server & Client
+To run a local SDK server and client for debugging purposes, [download the SDK](https://teamspeak.com/en/downloads/#sdk) into to server directory and build & run the examples
 
 **Server**
 
