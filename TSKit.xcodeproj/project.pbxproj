@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		37263B2E22710A55009817E6 /* ChannelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37263B2D22710A55009817E6 /* ChannelViewController.swift */; };
+		37263B3022710A9B009817E6 /* RoomViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37263B2F22710A9B009817E6 /* RoomViewController.swift */; };
+		37263B3222710AB1009817E6 /* ChannelDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37263B3122710AB1009817E6 /* ChannelDelegate.swift */; };
 		8A04A3CC1FA207C6002F2285 /* TSKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 8A04A3CA1FA207C6002F2285 /* TSKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8A04A3D71FA209AF002F2285 /* AudioIO.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8A04A3D41FA209AA002F2285 /* AudioIO.mm */; settings = {COMPILER_FLAGS = "-w"; }; };
 		8A04A3D81FA209B3002F2285 /* CAAudioBufferList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8A04A3D51FA209AA002F2285 /* CAAudioBufferList.cpp */; };
@@ -68,6 +71,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		37263B2D22710A55009817E6 /* ChannelViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelViewController.swift; sourceTree = "<group>"; };
+		37263B2F22710A9B009817E6 /* RoomViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomViewController.swift; sourceTree = "<group>"; };
+		37263B3122710AB1009817E6 /* ChannelDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelDelegate.swift; sourceTree = "<group>"; };
 		8A04A3C71FA207C6002F2285 /* TSKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TSKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A04A3CA1FA207C6002F2285 /* TSKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TSKit.h; sourceTree = "<group>"; };
 		8A04A3CB1FA207C6002F2285 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -144,6 +150,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		37263B2C22710A09009817E6 /* Swift Example */ = {
+			isa = PBXGroup;
+			children = (
+				37263B2D22710A55009817E6 /* ChannelViewController.swift */,
+				37263B2F22710A9B009817E6 /* RoomViewController.swift */,
+				37263B3122710AB1009817E6 /* ChannelDelegate.swift */,
+			);
+			path = "Swift Example";
+			sourceTree = "<group>";
+		};
 		8A04A3BD1FA207C6002F2285 = {
 			isa = PBXGroup;
 			children = (
@@ -240,6 +256,7 @@
 		8A04A4091FA22057002F2285 /* TSKitSample */ = {
 			isa = PBXGroup;
 			children = (
+				37263B2C22710A09009817E6 /* Swift Example */,
 				8AF368811FDB4811000C7CB7 /* Classes */,
 				8A04A4101FA22058002F2285 /* Main.storyboard */,
 				8A04A4131FA22058002F2285 /* Assets.xcassets */,
@@ -464,11 +481,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				8AF368831FDB4839000C7CB7 /* ChannelViewController.m in Sources */,
+				37263B3222710AB1009817E6 /* ChannelDelegate.swift in Sources */,
 				8A04A40F1FA22058002F2285 /* ChannelListViewController.m in Sources */,
 				8A04A41A1FA22058002F2285 /* main.m in Sources */,
 				8A04A40C1FA22058002F2285 /* AppDelegate.m in Sources */,
 				C4D87EC31775E573C761FDE1 /* UIViewController+TSViewController.m in Sources */,
+				37263B2E22710A55009817E6 /* ChannelViewController.swift in Sources */,
 				8AF368801FDB401D000C7CB7 /* ExampleSwift.swift in Sources */,
+				37263B3022710A9B009817E6 /* RoomViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -688,7 +708,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "TSKitSample/TSKitSample-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -707,7 +727,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = net.tequilaapps.TSKitSample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "TSKitSample/TSKitSample-Bridging-Header.h";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
