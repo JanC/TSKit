@@ -476,6 +476,7 @@
 				8A04A40C1FA22058002F2285 /* AppDelegate.m in Sources */,
 				C4D87EC31775E573C761FDE1 /* UIViewController+TSViewController.m in Sources */,
 				37263B2E22710A55009817E6 /* ChannelViewController.swift in Sources */,
+				8AF368801FDB401D000C7CB7 /* ExampleSwift.swift in Sources */,
 				37263B3022710A9B009817E6 /* RoomViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
