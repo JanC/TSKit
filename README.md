@@ -5,7 +5,7 @@
 ![](logo.svg)
 
 
-TSKit is a Objective-C wrapper around the [C TeamSpeak client library](https://teamspeak.com/en/downloads/#sdk)
+TSKit is a Objective-C wrapper around the [C TeamSpeak client library](https://www.teamspeak.com/en/downloads/)
 
 Note: This is still work in progress.
 
