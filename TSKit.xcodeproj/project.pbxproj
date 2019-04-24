@@ -25,7 +25,6 @@
 		8A04A41A1FA22058002F2285 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A04A4191FA22058002F2285 /* main.m */; };
 		8A04A41E1FA22063002F2285 /* TSKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A04A3C71FA207C6002F2285 /* TSKit.framework */; };
 		8A04A41F1FA22063002F2285 /* TSKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8A04A3C71FA207C6002F2285 /* TSKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		8AF368801FDB401D000C7CB7 /* ExampleSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF3687F1FDB401D000C7CB7 /* ExampleSwift.swift */; };
 		8AF368831FDB4839000C7CB7 /* ChannelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D8743825F442D0C687743B /* ChannelViewController.m */; };
 		C4D87069EFC1A7D035E5F0CF /* TSChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D8722CC50748F4BFD61CC9 /* TSChannel.m */; };
 		C4D870B0426ED96798FD5FD3 /* TSChannelMove.h in Headers */ = {isa = PBXBuildFile; fileRef = C4D876BD1EFE1639A1EBC7C8 /* TSChannelMove.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -105,7 +104,6 @@
 		8A04A4181FA22058002F2285 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8A04A4191FA22058002F2285 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		8AF3687E1FDB401D000C7CB7 /* TSKitSample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TSKitSample-Bridging-Header.h"; sourceTree = "<group>"; };
-		8AF3687F1FDB401D000C7CB7 /* ExampleSwift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleSwift.swift; sourceTree = "<group>"; };
 		C4D87012011B87E4FC1C2E61 /* UIViewController+TSViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+TSViewController.h"; sourceTree = "<group>"; };
 		C4D871CE200A848D4D0743F3 /* TSChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSChannel.h; sourceTree = "<group>"; };
 		C4D8721AB8868E1A786CDE64 /* TSClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSClient.h; sourceTree = "<group>"; };
@@ -273,7 +271,6 @@
 			children = (
 				8A04A40A1FA22058002F2285 /* AppDelegate.h */,
 				8A04A40B1FA22058002F2285 /* AppDelegate.m */,
-				8AF368851FDB484C000C7CB7 /* Samples */,
 				8AF368841FDB483C000C7CB7 /* Categories */,
 				8AF368821FDB4828000C7CB7 /* Controllers */,
 			);
@@ -298,14 +295,6 @@
 				C4D879373F50503195D7CE2E /* UIViewController+TSViewController.m */,
 			);
 			path = Categories;
-			sourceTree = "<group>";
-		};
-		8AF368851FDB484C000C7CB7 /* Samples */ = {
-			isa = PBXGroup;
-			children = (
-				8AF3687F1FDB401D000C7CB7 /* ExampleSwift.swift */,
-			);
-			path = Samples;
 			sourceTree = "<group>";
 		};
 		C4D8754BD5481759D8462993 /* Private */ = {
@@ -487,7 +476,6 @@
 				8A04A40C1FA22058002F2285 /* AppDelegate.m in Sources */,
 				C4D87EC31775E573C761FDE1 /* UIViewController+TSViewController.m in Sources */,
 				37263B2E22710A55009817E6 /* ChannelViewController.swift in Sources */,
-				8AF368801FDB401D000C7CB7 /* ExampleSwift.swift in Sources */,
 				37263B3022710A9B009817E6 /* RoomViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
