@@ -149,6 +149,47 @@
     self.isSubscribedToChannels = NO;
 }
 
+- (void)wisperConnect:(nullable NSArray<TSUser *>*)users channels:(nullable NSArray<TSChannel *>*)channels {
+    UInt64 *channelIDs =calloc(users.count + 1, sizeof(UInt64));
+    for (int i = 0; i < users.count; i++) {
+        channelIDs[i] = users[i].uid;
+        NSLog(@" WisperConnect List of Channels to allow wispers from %llu:\n", (unsigned long long) users[i].uid);
+    }
+    UInt64 *idBuffer = calloc(users.count + 1, sizeof(UInt64));
+    for (int u = 0; u < users.count; u++) {
+        idBuffer[u] = users[u].uid;
+        NSLog(@" WisperConnect List of UserID to allow wispers from %llu:\n", (unsigned long long) users[u].uid);
+    }
+
+    NSString *returnCode = [[NSUUID UUID] UUIDString];
+    __weak typeof(self) wself = self;
+    wself.ts3clientReturnCodesCallbacks[returnCode] = ^(NSString *message, NSUInteger errorCode, NSString *extraMessage) {
+        NSLog(@"WisperConnect Error: %@", [NSError ts_errorMessageFromCode:errorCode]);
+
+        // success
+        if (errorCode == ERROR_ok) {
+            NSLog(@"WisperConnect Success");
+            return;
+        } else {
+            // error
+            NSLog(@"WisperConnect Error: %@", [NSError ts_errorMessageFromCode:errorCode]);
+        }
+    };
+
+    ts3client_requestClientSetWhisperList(self.serverConnectionHandlerID, self.ownClientID, channelIDs, idBuffer, [returnCode cStringUsingEncoding:NSUTF8StringEncoding]);
+
+}
+
+- (void)allowWisperFrom:(TSUser*) user {
+    NSLog(@"WisperConnect: allow Wispers from %@", user.name);
+    ts3client_allowWhispersFrom(_serverConnectionHandlerID, user.uid);
+}
+
+- (void)removeWisperFrom:(TSUser*) user {
+    NSLog(@"WisperConnect: remove Wispers from %@", user.name);
+    ts3client_removeFromAllowedWhispersFrom(_serverConnectionHandlerID, user.uid);
+}
+
 - (NSArray<TSChannel *> *)listChannels
 {
     UInt64 *ids;
