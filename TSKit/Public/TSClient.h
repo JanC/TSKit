@@ -83,6 +83,29 @@ typedef void (^TSClientAuthPrompt)(TSClientAuthCallback authCallback);
 
 -(void)disconnect;
 
+/**
+ A client with a whisper list set can talk to the specified clients and channels bypassing the standard rule that voice is only transmitted to the current channel. Whisper lists can be defined for individual clients. A whisper list consists of an array of client IDs and/or an array of channel IDs.
+
+ @param users list of `TSUsers` to be white listed. To clear list pass `Null` or empty array.
+ @param channels List of `TSChannels` to be white listed. To clear list pass `Null` or empty array.
+ */
+-(void)wisperConnect:(nullable NSArray<TSUser *>*)users channels:(nullable NSArray<TSChannel *>*)channels;
+
+/**
+ Adds a `TSUser` to the wisper list. Allowing the current user to recive audio from the added User.
+
+ @param user `TSUser`
+ */
+-(void)allowWisperFrom:(TSUser*) user;
+
+
+/**
+ Removes a `TSUser` to the wisper list. Disallowing the current user from receiving audio from this user.
+
+ @param user `TSUser`
+ */
+-(void)removeWisperFrom:(TSUser*) user;
+
 - (NSArray<TSChannel *> *)listChannels;
 
 /**
