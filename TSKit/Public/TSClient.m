@@ -161,7 +161,7 @@
     UInt64 *userIDs = calloc(users.count + 1, sizeof(UInt64));
     for (NSUInteger u = 0; u < users.count; u++) {
         userIDs[u] = users[u].uid;
-        NSLog(@" WhisperList add user with ID:% llu:\n", (unsigned long long) users[u].uid);
+        NSLog(@" WhisperList add user with ID: %llu:\n", (unsigned long long) users[u].uid);
     }
 
     NSString *returnCode = [[NSUUID UUID] UUIDString];
