@@ -640,7 +640,7 @@
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/TSKit/include";
 				INFOPLIST_FILE = TSKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -670,7 +670,7 @@
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/TSKit/include";
 				INFOPLIST_FILE = TSKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -693,7 +693,7 @@
 				DEVELOPMENT_TEAM = G9MA9G2SST;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = TSKitSample/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = net.tequilaapps.TSKitSample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -713,7 +713,7 @@
 				DEVELOPMENT_TEAM = G9MA9G2SST;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = TSKitSample/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = net.tequilaapps.TSKitSample;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -89,7 +89,7 @@ typedef void (^TSClientAuthPrompt)(TSClientAuthCallback authCallback);
  @param users list of `TSUsers` to be white listed. To clear list pass `Null` or empty array.
  @param channels List of `TSChannels` to be white listed. To clear list pass `Null` or empty array.
  */
--(void)wisperConnect:(nullable NSArray<TSUser *>*)users channels:(nullable NSArray<TSChannel *>*)channels;
+-(void)requestClientSetWhisperList:(nullable NSArray<TSUser *>*)users channels:(nullable NSArray<TSChannel *>*)channels;
 
 /**
  Adds a `TSUser` to the wisper list. Allowing the current user to recive audio from the added User.

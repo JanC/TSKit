@@ -141,7 +141,7 @@ extension RoomViewController: UITableViewDelegate {
         let addToWisperListAction = UIAlertAction(title: "Add users of channel to WisperList", style: .default) { _ in
             let users = try! self.client.listUsers(in: channel)
             // Optionally you could just wisper to individual `TSUsers` or to an individual `TSChannel`
-            self.client.wisperConnect(users, channels: [channel])
+            self.client.requestSetWhisperList(users, channels: [channel])
             self.navigationController?.pushViewController(destination, animated: true)
         }
 
