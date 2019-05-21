@@ -109,7 +109,15 @@ extension SampleViewController: TSClientDelegate {
 # Development
 
 ## Test Server & Client
-To run a local SDK server and client for debugging purposes, [download the SDK](https://teamspeak.com/en/downloads/#sdk) into to server directory and build & run the examples
+To run a local SDK server and client for debugging purposes, [download the SDK](https://teamspeak.com/en/downloads/#sdk) into to `tools` directory and build & run the examples
+
+**Download SDK**
+
+```bash
+cd tools
+curl -O https://files.teamspeak-services.com/releases/sdk/3.0.4.4/ts3_sdk_3.0.4.4.zip
+unzip ts3_sdk_3.0.4.4.zip
+ln -s ts3_sdk_3.0.4.4 ts3_sdk
 
 **Server**
 
