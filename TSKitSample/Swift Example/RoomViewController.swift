@@ -115,20 +115,39 @@ extension RoomViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let channel = channels[indexPath.item]
-        client.move(to: channel, authCallback: { auth in
-            print(auth)
-        }) { (sucsess, error) in
 
-            let destination = ChannelViewController(client: self.client)
-            destination.client?.delegate = self
-            self.navigationController?.pushViewController(destination, animated: true)
+        let destination = ChannelViewController(client: self.client)
+        destination.client?.delegate = self
 
-            if !sucsess {
-                print("Unable to move to channel because of error: \(error.localizedDescription)")
-                return
+        let alert = UIAlertController(
+            title: "Channel Actions",
+            message: nil,
+            preferredStyle: .alert
+        )
+
+        let joinChannelAction = UIAlertAction(title:"Join", style: .default) { _ in
+            self.client.move(to: channel, authCallback: { auth in
+                print(auth)
+            }) { (sucsess, error) in
+                if !sucsess {
+                    print("Unable to move to channel because of error: \(error.localizedDescription)")
+                    return
+                }
+                self.navigationController?.pushViewController(destination, animated: true)
             }
-
         }
+        alert.addAction(joinChannelAction)
+
+        let addToWisperListAction = UIAlertAction(title: "Add users of channel to WisperList", style: .default) { _ in
+            let users = try! self.client.listUsers(in: channel)
+            // Optionally you could just wisper to individual `TSUsers` or to an individual `TSChannel`
+            self.client.requestSetWhisperList(users, channels: [channel])
+            self.navigationController?.pushViewController(destination, animated: true)
+        }
+
+        alert.addAction(addToWisperListAction)
+
+        self.navigationController?.present(alert, animated: true, completion: nil)
     }
 }
 

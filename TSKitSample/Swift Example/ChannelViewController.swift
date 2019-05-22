@@ -129,6 +129,16 @@ extension ChannelViewController: UITableViewDataSource {
         }
         alert .addAction(muteAction)
 
+        let allowWispersAction = UIAlertAction(title: "Allow Wispers", style: .default) { _ in
+            self.client?.allowWisper(from: user)
+        }
+        alert .addAction(allowWispersAction)
+
+        let disallowWispersAction = UIAlertAction(title: "Dissallow Wispers", style: .default) { _ in
+            self.client?.allowWisper(from: user)
+        }
+        alert .addAction(disallowWispersAction)
+
         navigationController?.present(alert, animated: true, completion: nil)
     }
 

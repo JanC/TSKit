@@ -149,6 +149,51 @@
     self.isSubscribedToChannels = NO;
 }
 
+- (void)requestClientSetWhisperList:(nullable NSArray<TSUser *>*)users channels:(nullable NSArray<TSChannel *>*)channels {
+    // Pull out all the IDs for channels
+    UInt64 *channelIDs = calloc(channels.count + 1, sizeof(UInt64));
+    for (NSUInteger i = 0; i < channels.count; i++) {
+        channelIDs[i] = channels[i].uid;
+        NSLog(@" WhisperList add Channel with ID: %llu:\n", (unsigned long long) channels[i].uid);
+    }
+
+    // Pull out all the IDs for users
+    UInt64 *userIDs = calloc(users.count + 1, sizeof(anyID));
+    for (NSUInteger u = 0; u < users.count; u++) {
+        userIDs[u] = users[u].uid;
+        NSLog(@" WhisperList add user with ID: %llu:\n", (const unsigned short) users[u].uid);
+    }
+
+    NSString *returnCode = [[NSUUID UUID] UUIDString];
+    __weak typeof(self) wself = self;
+    wself.ts3clientReturnCodesCallbacks[returnCode] = ^(NSString *message, NSUInteger errorCode, NSString *extraMessage) {
+        NSLog(@"WhisperList Error: %@", [NSError ts_errorMessageFromCode:errorCode]);
+
+        // success
+        if (errorCode == ERROR_ok) {
+            NSLog(@"WhisperList Success");
+            return;
+        } else {
+            // error
+            NSLog(@"WhisperList Error: %@", [NSError ts_errorMessageFromCode:errorCode]);
+        }
+    };
+
+    ts3client_requestClientSetWhisperList(self.serverConnectionHandlerID, self.ownClientID, channelIDs, userIDs, [returnCode cStringUsingEncoding:NSUTF8StringEncoding]);
+    free(channelIDs);
+    free(userIDs);
+}
+
+- (void)allowWisperFrom:(TSUser*) user {
+    NSLog(@"WhisperList: allow Whispers from %@", user.name);
+    ts3client_allowWhispersFrom(_serverConnectionHandlerID, user.uid);
+}
+
+- (void)removeWisperFrom:(TSUser*) user {
+    NSLog(@"WhisperList: remove Whispers from %@", user.name);
+    ts3client_removeFromAllowedWhispersFrom(_serverConnectionHandlerID, user.uid);
+}
+
 - (NSArray<TSChannel *> *)listChannels
 {
     UInt64 *ids;
