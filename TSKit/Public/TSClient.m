@@ -158,7 +158,7 @@
     }
 
     // Pull out all the IDs for users
-    UInt64 *userIDs = calloc(users.count + 1, sizeof(anyID));
+    anyID *userIDs = calloc(users.count + 1, sizeof(anyID));
     for (NSUInteger u = 0; u < users.count; u++) {
         userIDs[u] = users[u].uid;
         NSLog(@" WhisperList add user with ID: %llu:\n", (const unsigned short) users[u].uid);
