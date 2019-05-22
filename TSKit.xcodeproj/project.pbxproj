@@ -676,7 +676,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/TSKit/lib",
 				);
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = net.tequilaapps.TSKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
