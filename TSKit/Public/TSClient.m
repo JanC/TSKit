@@ -151,7 +151,7 @@
 
 - (void)requestClientSetWhisperList:(nullable NSArray<TSUser *>*)users channels:(nullable NSArray<TSChannel *>*)channels {
     // Pull out all the IDs for channels
-    UInt64 *channelIDs =calloc(channels.count + 1, sizeof(UInt64));
+    UInt64 *channelIDs = calloc(channels.count + 1, sizeof(UInt64));
     for (NSUInteger i = 0; i < users.count; i++) {
         channelIDs[i] = users[i].uid;
         NSLog(@" WhisperList add Channel with ID: %llu:\n", (unsigned long long) users[i].uid);
