@@ -5,7 +5,7 @@
 
 #import <Foundation/Foundation.h>
 
-
+NS_ASSUME_NONNULL_BEGIN
 @interface TSUser : NSObject
 
 @property (nonatomic, assign) uint64_t uid;
@@ -16,5 +16,6 @@
 
 + (instancetype)userWithUid:(uint64_t)uid name:(NSString *)name muted:(BOOL) muted;
 
-
 @end
+
+NS_ASSUME_NONNULL_END
