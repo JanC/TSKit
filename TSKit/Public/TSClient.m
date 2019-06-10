@@ -422,7 +422,8 @@
 
         NSUInteger error;
         /* Get own clientID as we need to call CLIENT_FLAG_TALKING with getClientSelfVariable for own client */
-        if ((error = ts3client_getClientID(self.serverConnectionHandlerID, &_ownClientID)) != ERROR_ok) {
+        // it's ok to force cast as we are not running in windows
+        if ((error = ts3client_getClientID(self.serverConnectionHandlerID, (anyID *)&_ownClientID)) != ERROR_ok) {
             NSLog(@"Getting own clientID: %@", [NSError ts_errorMessageFromCode:error]);
         }
 
