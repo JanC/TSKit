@@ -118,6 +118,7 @@ cd tools
 curl -O https://files.teamspeak-services.com/releases/sdk/3.0.4.4/ts3_sdk_3.0.4.4.zip
 unzip ts3_sdk_3.0.4.4.zip
 ln -s ts3_sdk_3.0.4.4 ts3_sdk
+```
 
 **Server**
 
@@ -129,7 +130,9 @@ make
 
 **Client**
 
+
 ```bash
+
 cd tools/client
 make
 # ip port password receiveonly clientname

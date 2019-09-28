@@ -842,6 +842,7 @@ int main() {
 	createChannel(serverID, "18010");
 	createChannel(serverID, "14010");
 	createChannel(serverID, "12300");
+	createChannel(serverID, "12345");
 	createChannelPass(serverID, "Private (1234)", "1234");
 
 	while(!abort) {
