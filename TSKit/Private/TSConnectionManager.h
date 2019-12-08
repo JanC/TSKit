@@ -13,6 +13,7 @@
 + (instancetype)sharedManager;
 
 - (void)registerClient:(TSClient *)client;
+- (void)unregisterClient:(TSClient *)client;
 
 - (void)initializeLibrary;
 @end
