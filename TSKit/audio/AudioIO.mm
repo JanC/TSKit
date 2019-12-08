@@ -112,7 +112,7 @@ static OSStatus	AudioOutCallback(void *inRefCon,
 	
     AudioComponentInstanceDispose(audioUnit);
     
-    AudioUnitUninitialize(audioUnit);
+    //AudioUnitUninitialize(audioUnit);
     
     // free input buffer list used to retrieve recorded data
     if (inputBufferList)

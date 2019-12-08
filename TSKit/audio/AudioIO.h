@@ -38,7 +38,7 @@ static const int AUDIO_INPUT_BUS = 1;
 	
 	AudioUnit					audioUnit;	
 	AudioStreamBasicDescription	audioFormat;
-	id<AudioIODelegate>		    delegate;
+	__weak id<AudioIODelegate>		    delegate;
     BOOL                        started;
     AudioBufferList             *inputBufferList; // For microphone audio
 }
@@ -52,7 +52,7 @@ static const int AUDIO_INPUT_BUS = 1;
 
 @property AudioUnit									audioUnit;
 @property (getter=isStarted) BOOL					started;
-@property (nonatomic, retain) id<AudioIODelegate>	delegate;
+@property (nonatomic, weak) id<AudioIODelegate>	delegate;
 @property (nonatomic) AudioBufferList				*inputBufferList;
 
 -(instancetype) initWithAllowRecord:(BOOL) allowRecord;

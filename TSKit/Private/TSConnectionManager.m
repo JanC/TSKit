@@ -49,6 +49,15 @@
     self.connections[@(client.serverConnectionHandlerID)] = client;
 }
 
+- (void)unregisterClient:(TSClient *)client
+{
+    if (client.serverConnectionHandlerID == 0) {
+        NSAssert(NO, @"Only valid clients can be unregistered");
+        return;
+    }
+    self.connections[@(client.serverConnectionHandlerID)] = nil;
+}
+
 
 #pragma mark - SDK C function callbacks
 

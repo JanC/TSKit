@@ -60,9 +60,6 @@
         self.isSubscribedToChannels = NO;
 
         [TSConnectionManager sharedManager];
-        [self spawnServerConnectionHandler];
-        [self registerAudioDevice];
-
     }
 
     return self;
@@ -75,6 +72,8 @@
         self.identity = [self.class createIdentity];
     }
 
+    [self spawnServerConnectionHandler];
+    [self registerAudioDevice];
 
     char **channels = NULL;
 
@@ -378,7 +377,17 @@
         NSLog(@"ts3client_spawnNewServerConnectionHandler ERROR");
         return;
     }
-    [[TSConnectionManager sharedManager] registerClient:self];
+    [[TSConnectionManager sharedManager] registerClient: self];
+}
+
+-(void) destroyConnectionHandler
+{
+    unsigned int error = ts3client_destroyServerConnectionHandler(_serverConnectionHandlerID);
+    if (error != ERROR_ok) {
+        NSLog(@"ts3client_destroyServerConnectionHandler ERROR");
+        return;
+    }
+    [[TSConnectionManager sharedManager] unregisterClient: self];
 }
 
 + (NSString *)createIdentity
@@ -441,6 +450,9 @@
 
     if (newStatus == STATUS_DISCONNECTED) {
         [self closeAudio];
+        [self unregisterAudioDevice];
+        [self destroyConnectionHandler];
+
     }
 
     self.currentStatus = (TSConnectionStatus)newStatus;
@@ -718,7 +730,6 @@
 
     NSLog(@"Opening playback device for server connection handler %qu", _serverConnectionHandlerID);
 
-    //ts3client_getDefaultPlayBackMode(<#char** result#>)
 
     error = ts3client_openPlaybackDevice(_serverConnectionHandlerID, "custom", self.audioIO.deviceID.UTF8String);
     if (error != ERROR_ok) {
