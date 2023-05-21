@@ -6,11 +6,10 @@
 //  Copyright © 2019 Tequila Apps. All rights reserved.
 //
 
-import UIKit
 import TSKit
+import UIKit
 
 class ChannelViewController: UIViewController {
-
     var users: [TSUser] = [] {
         didSet {
             table.reloadData()
@@ -66,8 +65,7 @@ class ChannelViewController: UIViewController {
             table.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             table.topAnchor.constraint(equalTo: view.topAnchor),
             table.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-            ])
-
+        ])
     }
 
     func configureRefreshButton() {
@@ -80,22 +78,17 @@ class ChannelViewController: UIViewController {
             if let client = client {
                 try self.users = client.listUsers(in: client.currentChannel)
             }
-
         } catch {
             print(error.localizedDescription)
         }
-
     }
-
 }
 
 // MARK: - TableViewDelegate
 extension ChannelViewController: UITableViewDelegate {
-
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return users.count
     }
-
 }
 
 // MARK: - TableViewDataSource
@@ -118,7 +111,7 @@ extension ChannelViewController: UITableViewDataSource {
             message: nil,
             preferredStyle: .alert
         )
-        let muteAction = UIAlertAction(title: user.isMuted ?  "UnMute \(name)" : "Mute \(name)", style: .default) { _ in
+        let muteAction = UIAlertAction(title: user.isMuted ? "UnMute \(name)" : "Mute \(name)", style: .default) { _ in
             do {
                 guard let client = self.client else { return }
                 try client.muteUser(user, mute: !user.isMuted)
@@ -141,18 +134,15 @@ extension ChannelViewController: UITableViewDataSource {
 
         navigationController?.present(alert, animated: true, completion: nil)
     }
-
 }
 
-
 extension ChannelViewController: ChannelDelegate {
-
     func addUser(user: TSUser) {
         self.users.append(user)
     }
 
     func removeUser(user: TSUser) {
-        self.users.removeAll(where: { $0 == user } )
+        self.users.removeAll(where: { $0 == user })
     }
 
     @objc func reload() {

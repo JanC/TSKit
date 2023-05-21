@@ -6,11 +6,10 @@
 //  Copyright © 2019 Tequila Apps. All rights reserved.
 //
 
-import UIKit
 import TSKit
+import UIKit
 
 class RoomViewController: UIViewController {
-
     var channels: [TSChannel] = [] {
         didSet {
             table.reloadData()
@@ -39,11 +38,9 @@ class RoomViewController: UIViewController {
     }
 
     override func viewDidLoad() {
-
         // set the delegate to respond to server events
         client.delegate = self
         configureTable()
-
     }
 
     func configureTable() {
@@ -52,11 +49,9 @@ class RoomViewController: UIViewController {
         table.dataSource = self
         table.tableFooterView = UIView()
     }
-
 }
 
 extension RoomViewController: TSClientDelegate {
-
     func client(_ client: TSClient, user: TSUser, talkStatusChanged talking: Bool) {
         print("\(user.name) is talking \(talking)")
     }
@@ -77,19 +72,19 @@ extension RoomViewController: TSClientDelegate {
         switch status {
         case .disconnected:
             print("Connection disocnnected")
-            break;
+            break
         case .connecting:
             print("Connection connecting")
-            break;
+            break
         case .connected:
             print("Connection connected")
-            break;
+            break
         case .establishing:
             print("Connection establishing")
-            break;
+            break
         case .established:
             print("Connection established")
-            break;
+            break
         @unknown default:
             fatalError()
         }
@@ -99,12 +94,10 @@ extension RoomViewController: TSClientDelegate {
         // we were disconnected
         print("⛔️ \(error.localizedDescription)")
     }
-
 }
 
 // MARK: - TableViewDelegate
 extension RoomViewController: UITableViewDelegate {
-
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "Cell")
         let channel = channels[indexPath.item]
@@ -125,10 +118,10 @@ extension RoomViewController: UITableViewDelegate {
             preferredStyle: .alert
         )
 
-        let joinChannelAction = UIAlertAction(title:"Join", style: .default) { _ in
+        let joinChannelAction = UIAlertAction(title: "Join", style: .default) { _ in
             self.client.move(to: channel, authCallback: { auth in
                 print(auth)
-            }) { (sucsess, error) in
+            }) { sucsess, error in
                 if !sucsess {
                     print("Unable to move to channel because of error: \(error.localizedDescription)")
                     return
@@ -153,10 +146,7 @@ extension RoomViewController: UITableViewDelegate {
 
 // MARK: - TableViewDataSource
 extension RoomViewController: UITableViewDataSource {
-
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return channels.count
     }
 }
-
-
