@@ -38,7 +38,7 @@ class ChannelViewController: UIViewController {
 
     override func viewDidLoad() {
         configureTable()
-        if let client = client {
+        if let client {
             title = client.currentChannel.name
         }
         configureRefreshButton()
@@ -75,7 +75,7 @@ class ChannelViewController: UIViewController {
     /// fetch all the users on the current channel.
     func refreshUsers() {
         do {
-            if let client = client {
+            if let client {
                 try self.users = client.listUsers(in: client.currentChannel)
             }
         } catch {
